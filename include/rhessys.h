@@ -886,6 +886,7 @@ struct  landuse_default
         double  fertilizer_NH4;                                 /* kg/m2/day    */
         int fertilizer_freq;
         double fertilizer_decay_rate; // no unit
+        double solar_panel_frac;    /* no unit (Zhang, Sep 5 2023) */
         double  irrigation;                                     /* m/day        */
         //double  PH;                                     /* DIM  */
         double  septic_NO3_load;                                        /* kg/m2/day */

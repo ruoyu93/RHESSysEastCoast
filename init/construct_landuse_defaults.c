@@ -98,6 +98,8 @@ struct landuse_default *construct_landuse_defaults(
 		default_object_list[i].fertilizer_NH4 = 	getDoubleParam(&paramCnt, &paramPtr, "fertilizer_NH4", "%lf", 0.0, 1);//kgN/m2/each time
         default_object_list[i].fertilizer_freq =     getIntParam(&paramCnt, &paramPtr, "fertilizer_freq", "%d", 30, 1); // # of days between each time
         default_object_list[i].fertilizer_decay_rate = -log(0.1)/(1.0*default_object_list[i].fertilizer_freq);
+
+        default_object_list[i].solar_panel_frac = getDoubleParam(&paramCnt, &paramPtr, "solarPanelFrac", "%lf", 0.0, 1);
         // 1.0 - exp(-10/(1.0*default_object_list[i].fertilizer_freq));
         // for period "default_object_list[i].fertilizer_freq", the stored fertilizer should have been gone 10% N0)
         double numPPLinHouse =     getDoubleParam(&paramCnt, &paramPtr, "numPPLinHouse", "%lf", 1.0, 1);
@@ -138,6 +140,7 @@ struct landuse_default *construct_landuse_defaults(
         default_object_list[i].sewerNH4c = getDoubleParam(&paramCnt, &paramPtr, "sewerNH4mgNL", "%lf", 2.5, 1)*0.001;
         default_object_list[i].sewerDONc = getDoubleParam(&paramCnt, &paramPtr, "sewerDONmgNL", "%lf", 2.5, 1)*0.001;
         default_object_list[i].sewerDOCc = getDoubleParam(&paramCnt, &paramPtr, "sewerDOCmgCL", "%lf", 2.5, 1)*0.001;
+
         /*--------------------------------------------------------------*/
 		/*		Close the ith default file.								*/
 		/*--------------------------------------------------------------*/
