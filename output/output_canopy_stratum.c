@@ -31,6 +31,8 @@
 
 void	output_canopy_stratum( int basinID, int hillID, int zoneID, int patchID,
 							  struct	canopy_strata_object	*stratum,
+							  struct    patch_object  *patch,
+							  struct    zone_object   *zone,
 							  struct	date	current_date,
 							  FILE *outfile)
 {
@@ -41,8 +43,9 @@ void	output_canopy_stratum( int basinID, int hillID, int zoneID, int patchID,
 	/*------------------------------------------------------*/
 	/*	Local Variable Definition. 							*/
 	/*------------------------------------------------------*/
-	if(patchID==226201 || patchID==207743 || patchID==239202) fprintf(outfile,
-		"%d %d %d %d %d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %d %lf %lf %lf %lf %lf %lf\n",
+	// * if(patchID==226201 || patchID==207743 || patchID==239202) 
+	fprintf(outfile,
+		"%d %d %d %d %d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %d %lf %lf %lf %lf %lf %lf\n",
 		current_date.day,
 		current_date.month,
 		current_date.year,
@@ -51,6 +54,10 @@ void	output_canopy_stratum( int basinID, int hillID, int zoneID, int patchID,
 		zoneID,
 		patchID,
 		stratum[0].ID,
+		zone[0].rain,
+		patch[0].rain_throughfall,
+		patch[0].rain_throughfall_final,
+		stratum[0].rain_receive,
 		stratum[0].epv.proj_lai,
 		stratum[0].evaporation*1000,
 		stratum[0].Kstar_direct,
