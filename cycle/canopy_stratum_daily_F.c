@@ -425,7 +425,7 @@ void	canopy_stratum_daily_F(
 
 	solar_frac = patch[0].landuse_defaults[0][0].solar_panel_frac;
 	
-	if(stratum[0].ID == 99){
+	if(stratum[0].defaults[0][0].ID == 99){
 		// The solar panel area of a patch, where 
 		// 1) all direct radiation is blocked and only diffused radiation reach below panels
 		// 2) no rainfall, will be routed to nearby open space
@@ -438,10 +438,12 @@ void	canopy_stratum_daily_F(
 		Kup_direct = 0;//<--- calculated from here
 		PAR_direct = min(patch[0].PAR_direct / (stratum[0].cover_fraction), 0);
 	
-    	rain_throughfall = min(patch[0].rain_throughfall / (stratum[0].cover_fraction),0);
-		snow_throughfall = min(patch[0].snow_throughfall / (stratum[0].cover_fraction), 0);
+    	// * rain_throughfall = min(patch[0].rain_throughfall / (stratum[0].cover_fraction),0);
+		// * snow_throughfall = min(patch[0].snow_throughfall / (stratum[0].cover_fraction), 0);
+		rain_throughfall = 0.0; 
+		snow_throughfall = 0.0;
 	}
-	else if(stratum[0].ID == 100){
+	else if(stratum[0].defaults[0][0].ID == 100){
 		// The open space between solar panels, where
 		// 1) radiation as usual
 		// 2) receive additional rainfall from solar panel area
