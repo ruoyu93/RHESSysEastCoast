@@ -33,7 +33,6 @@
 void	output_growth_canopy_stratum( int basinID, int hillID, int zoneID,
 									 int patchID,
 									 struct	canopy_strata_object	*stratum,
-									 struct zone_object *zone,
 									 struct	date	current_date,
 									 FILE *outfile)
 {
