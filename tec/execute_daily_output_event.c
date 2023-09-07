@@ -558,6 +558,8 @@ void	execute_daily_output_event(
 																world[0].basins[b][0].hillslopes[h][0].zones[z][0].ID,
 																world[0].basins[b][0].hillslopes[h][0].zones[z][0].patches[p][0].ID,
 																world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->canopy_strata[c],
+                                                                world[0].basins[b]->hillslopes[h]->zones[z]->patches[p],
+                                                                world[0].basins[b]->hillslopes[h]->zones[z],
 																date, outfile->canopy_stratum->daily);
 															}
 										} /* end stratum (c) for loop */
