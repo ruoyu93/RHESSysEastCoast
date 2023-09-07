@@ -565,7 +565,7 @@ void add_headers(struct world_output_file_object *world_output_files,
 		"patchID",
 		"stratumID",
 		"zone_rain",
-		"patch_rain",
+		"patch_rain",  // 10
 		"patch_rain_f",
 		"stra_rain",
 		"lai",
@@ -575,7 +575,7 @@ void add_headers(struct world_output_file_object *world_output_files,
 		"sublim",
 		"trans",
 		"ga",
-		"gsurf",
+		"gsurf", // 20
 		"gs",
 		"psi",
 		"leaf_day_mr",
@@ -583,9 +583,12 @@ void add_headers(struct world_output_file_object *world_output_files,
 		"rain_stored",
 		"snow_stored",
 		"rootzone.S",
-		"m_APAR","m_tavg","m_LWP","m_CO2","m_tmin","m_vpd","dC13",
-		"Lstar","surf_heat",
-		"height","covfrac","vegID","PAR_direct","PAR_diffuse","PET","PPSN","ppfd_sunlit","ppfd_shade");
+		"m_APAR","m_tavg","m_LWP",  // 30
+		"m_CO2","m_tmin","m_vpd","dC13",
+		"Lstar", 
+		"surf_heat",
+		"height","covfrac","vegID","PAR_direct", // 40
+		"PAR_diffuse","PET","PPSN","ppfd_sunlit","ppfd_shade");  // 45
 	/*--------------------------------------------------------------*/
 	/*	Monthly							*/
 	/*--------------------------------------------------------------*/

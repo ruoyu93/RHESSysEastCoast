@@ -40,13 +40,13 @@ void	output_growth_canopy_stratum( int basinID, int hillID, int zoneID,
 	/*------------------------------------------------------*/
 	/*	Local Function Declaratiocs.						*/
 	/*------------------------------------------------------*/
-	
+
 	/*------------------------------------------------------*/
 	/*	Local Variable Definition. 							*/
 	/*------------------------------------------------------*/
 
 	fprintf(outfile,
-		"%d %d %d %d %d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %d %lf %d %d %lf %d %lf %lf %lf %lf %lf %lf %lf \n",
+		"%d %d %d %d %d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %d %lf %d %d %lf %d %lf %lf %lf %lf %lf %lf %lf\n",
 		current_date.day,
 		current_date.month,
 		current_date.year,
@@ -54,9 +54,9 @@ void	output_growth_canopy_stratum( int basinID, int hillID, int zoneID,
 		hillID,
 		zoneID,
 		patchID,
-		stratum[0].ID,
+		stratum[0].ID, // 8
 		stratum[0].epv.proj_lai,
-		(stratum[0].cs.leafc + stratum[0].cs.leafc_store + stratum[0].cs.leafc_transfer)* 1000.0,
+		(stratum[0].cs.leafc + stratum[0].cs.leafc_store + stratum[0].cs.leafc_transfer)* 1000.0,  // 10
 		(stratum[0].ns.leafn + stratum[0].ns.leafn_store + stratum[0].ns.leafn_transfer)* 1000.0,
 		stratum[0].cs.cpool * 1000.0,
 		stratum[0].ns.npool * 1000.0,
@@ -66,7 +66,7 @@ void	output_growth_canopy_stratum( int basinID, int hillID, int zoneID,
 		(stratum[0].cs.live_stemc + stratum[0].cs.livestemc_store + stratum[0].cs.livestemc_transfer)* 1000.0,
 		(stratum[0].ns.live_stemn + stratum[0].ns.livestemn_store + stratum[0].ns.livestemn_transfer)* 1000.0,
 		stratum[0].cs.leafc_store * 1000.0,
-		stratum[0].ns.leafn_store * 1000.0,
+		stratum[0].ns.leafn_store * 1000.0,  // 20
 		(stratum[0].cs.dead_stemc + stratum[0].cs.deadstemc_store + stratum[0].cs.deadstemc_transfer)* 1000.0,
 		(stratum[0].ns.dead_stemn + stratum[0].ns.deadstemn_store + stratum[0].ns.deadstemn_transfer)* 1000.0,
 		(stratum[0].cs.live_crootc + stratum[0].cs.livecrootc_store + stratum[0].cs.livecrootc_transfer)* 1000.0,
@@ -76,14 +76,19 @@ void	output_growth_canopy_stratum( int basinID, int hillID, int zoneID,
 		stratum[0].cs.cwdc * 1000.0,
 		stratum[0].cdf.total_mr*1000.0,
 		stratum[0].cdf.total_gr*1000.0,
-		stratum[0].cdf.psn_to_cpool * 1000.0,
+		stratum[0].cdf.psn_to_cpool * 1000.0,  // 30
 		stratum[0].cs.age,
 		stratum[0].rootzone.depth*1000.0,
 		stratum[0].phen.gwseasonday,
 		stratum[0].phen.lfseasonday,
 		stratum[0].phen.gsi,
 		stratum[0].ns.nlimit,
-		stratum[0].cdf.fleaf, stratum[0].cdf.froot, stratum[0].cdf.fwood, stratum[0].ndf.actual_N_uptake*1000.0,
-		stratum[0].ndf.sminn_to_npool*1000.0, stratum[0].ndf.retransn_to_npool*1000.0, stratum[0].cs.mortality_fract);
+		stratum[0].cdf.fleaf, 
+		stratum[0].cdf.froot, 
+		stratum[0].cdf.fwood, 
+		stratum[0].ndf.actual_N_uptake*1000.0,  // 40
+		stratum[0].ndf.sminn_to_npool*1000.0, 
+		stratum[0].ndf.retransn_to_npool*1000.0, 
+		stratum[0].cs.mortality_fract);
 	return;
 } /*end output_growth_canopy_stratum*/

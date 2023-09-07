@@ -402,7 +402,7 @@ void add_growth_headers(struct world_output_file_object *world_output_files,
 		"live_stemc",
 		"live_stemn",
 		"leafc_store",
-		"leafn_store",
+		"leafn_store",  // 20
 		"dead_stemc",
 		"dead_stemn",
 		"live_crootc",
@@ -412,8 +412,10 @@ void add_growth_headers(struct world_output_file_object *world_output_files,
 		"cwdc",
 		"mresp",
 		"gresp",
-		"psn_to_cpool","age","root_depth","gwseasonday","lfseasonday","gsi", "nlimit",
-		"fleaf","froot","fwood","Nuptake","smin2pl","retrans2pl","mort_fract");
+		"psn_to_cpool", // 30
+		"age","root_depth","gwseasonday","lfseasonday","gsi", 
+		"nlimit","fleaf","froot","fwood","Nuptake",  // 40
+		"smin2pl","retrans2pl","mort_fract");
 
   /*--------------------------------------------------------------*/
 	/* Shadow	Daily 			                                   				*/
