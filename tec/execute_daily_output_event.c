@@ -80,6 +80,8 @@ void	execute_daily_output_event(
 	void output_canopy_stratum(
 		int, int, int, int,
 		struct	canopy_strata_object *,
+        struct  patch_object *,
+        struct  zone_object *,
 		struct	date,
 		FILE	*);
 	void output_shadow_strata(

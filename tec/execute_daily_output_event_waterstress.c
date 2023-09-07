@@ -79,6 +79,8 @@ void	execute_daily_output_event(
 	void output_canopy_stratum(
 		int, int, int, int,
 		struct	canopy_strata_object *,
+        struct  patch_object *,
+        struct  zone_object *,
 		struct	date,
 		FILE	*);
 	void output_shadow_strata(
@@ -169,7 +171,7 @@ void	execute_daily_output_event(
             
             AsoilETa[MyPatch->aggregate_index] += (MyPatch[0].exfiltration_sat_zone + MyPatch[0].exfiltration_unsat_zone)*MyPatch[0].area;
             AsurfETa[MyPatch->aggregate_index] += (MyPatch[0].evaporation + MyPatch[0].evaporation_surf)*MyPatch[0].area;
-            aroots[MyPatch->aggregate_index] += MyPatch[0].rootzone.S *MyPatch[0].area;
+            // aroots[MyPatch->aggregate_index] += MyPatch[0].rootzone.S *MyPatch[0].area;
             arootPorosity[MyPatch->aggregate_index] += MyPatch[0].rootzone.potential_sat / MyPatch[0].rootzone.depth *MyPatch[0].area;
             for ( layer=0 ; layer<MyPatch[0].num_layers; layer++ ){
                 for ( c=0 ; c<MyPatch[0].layers[layer].count; c++ ){
@@ -352,7 +354,10 @@ void	execute_daily_output_event(
 																world[0].basins[b][0].hillslopes[h][0].zones[z][0].ID,
 																world[0].basins[b][0].hillslopes[h][0].zones[z][0].patches[p][0].ID,
 																world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->canopy_strata[c],
-																date, outfile->canopy_stratum->daily);
+                                                                world[0].basins[b]->hillslopes[h]->zones[z]->patches[p],
+                                                                world[0].basins[b]->hillslopes[h]->zones[z],
+																date, 
+                                                                outfile->canopy_stratum->daily);
 															}
 										} /* end stratum (c) for loop */
 									} /* end if options */
