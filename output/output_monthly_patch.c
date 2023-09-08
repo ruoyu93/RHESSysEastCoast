@@ -36,7 +36,7 @@ void	output_monthly_patch(
 							 FILE *outfile)
 {
     int check;
-    check = fprintf(outfile,"%d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
+    check = fprintf(outfile,"%d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
     
     current_date.year,
     current_date.month,
@@ -45,22 +45,26 @@ void	output_monthly_patch(
     patch[0].acc_month.surfQnet*1000.0,//5
     patch[0].acc_month.subQvnet*1000.0,
     patch[0].acc_month.precip*1000.0,
+    patch[0].acc_month.PAR_direct/ patch[0].acc_month.days, 
+    patch[0].acc_month.PAR_diffuse/ patch[0].acc_month.days, 
+    patch[0].acc_month.Kdown_direct/ patch[0].acc_month.days,  // 10
+    patch[0].acc_month.Kdown_diffuse/ patch[0].acc_month.days, 
     patch[0].acc_month.PET*1000.0,
     patch[0].acc_month.ET*1000.0,
-    patch[0].acc_month.sat_deficit_z*1000.0 / patch[0].acc_month.days,//10
+    patch[0].acc_month.sat_deficit_z*1000.0 / patch[0].acc_month.days,
     patch[0].acc_month.peakLAI,
     patch[0].acc_month.meanLAI/ patch[0].acc_month.days,
     patch[0].acc_month.psn*1000.0,
     patch[0].acc_month.denitrif*1000.0,
-    patch[0].acc_month.mineralization*1000.0,//15
-    patch[0].acc_month.uptake*1000.0,
+    patch[0].acc_month.mineralization*1000.0,
+    patch[0].acc_month.uptake*1000.0, // 20
     patch[0].acc_month.subNO3net*1000.0,
     patch[0].acc_month.subNO3vnet*1000.0,
     patch[0].acc_month.subDOCnet*1000.0,
-    patch[0].acc_month.no3drain2gw*1000.0,//20
+    patch[0].acc_month.no3drain2gw*1000.0,
     patch[0].acc_month.satChance/ patch[0].acc_month.days,
     patch[0].acc_month.plantlimitN/ patch[0].acc_month.days,
-    patch[0].acc_month.plantlimitQ/ patch[0].acc_month.days
+    patch[0].acc_month.plantlimitQ/ patch[0].acc_month.days  // 27
     );
     
   

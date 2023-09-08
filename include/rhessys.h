@@ -1427,6 +1427,10 @@ struct accumulate_patch_object
     double meanLAI;
     double psn;
     double days;
+    double PAR_direct;
+    double PAR_diffuse;
+    double Kdown_direct;
+    double Kdown_diffuse;
     double satChance;
     double plantlimitN;
     double plantlimitQ;

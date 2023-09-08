@@ -138,7 +138,7 @@ void	output_patch(
     
 
     
-	check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
+	check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
                     
 					current_date.year, current_date.month, current_date.day, //1,2,3,
 					patch[0].ID, //4
@@ -159,6 +159,13 @@ void	output_patch(
                     treeLAI, //17
                     nontreeLAI, //18
                     patch[0].grassIrrigation_m,
+                   
+                    // ADDED 4 additional output for radiation, BY Zhang, Sep 8, 2023
+                    patch[0].PAR_direct,
+                    patch[0].PAR_diffuse,
+                    patch[0].Kdown_direct,
+                    patch[0].Kdown_diffuse,
+
                     
                     patch[0].rootzone.potential_sat*1000.0,
                     patch[0].field_capacity*1000.0,

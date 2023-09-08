@@ -242,6 +242,13 @@ void	execute_monthly_output_event(
                                     world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.subNO3vnet = 0.0;
                                     world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.subDOCnet = 0.0;
                                     world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.no3drain2gw = 0.0;
+
+									world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.PAR_diffuse = 0.0;
+									world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.PAR_direct = 0.0;
+									world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.Kdown_diffuse = 0.0;
+									world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.Kdown_direct = 0.0;
+
+
                                     
                                     
 								} /* end patch (p) for loop */

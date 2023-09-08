@@ -936,6 +936,12 @@ struct patch_object *construct_patch(
     patch[0].acc_month.satChance = 0.0;
     patch[0].acc_month.plantlimitN = 0.0;
     patch[0].acc_month.plantlimitQ = 0.0;
+    patch[0].acc_month.plantlimitQ = 0.0;
+
+    patch[0].acc_month.PAR_diffuse = 0.0;
+    patch[0].acc_month.PAR_direct = 0.0;
+    patch[0].acc_month.Kdown_diffuse = 0.0;
+    patch[0].acc_month.Kdown_direct = 0.0;
     
     // annual
     //patch[0].acc_year = (struct accumulate_patch_object *) alloc( 1 * sizeof( struct accumulate_patch_object ),"accumulate_patch_object", "construct_patch" );

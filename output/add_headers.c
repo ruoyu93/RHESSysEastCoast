@@ -452,7 +452,7 @@ void add_headers(struct world_output_file_object *world_output_files,
 	outfile = world_output_files[0].patch[0].daily;
 		check = fprintf(outfile,
 //                        "%s-%s-%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n" ,
-                        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n", // added 4 extra
+                        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n", // added 4 extra
                         
                         // we are looking for hydrology behavoirs
 						"year", //1
@@ -474,6 +474,8 @@ void add_headers(struct world_output_file_object *world_output_files,
                         "treeLAI",//17
                         "nontreeLAI",//18
                         "SmartIrrigation",
+						"PAR_dir",  // added by Zhang, Sep 8, 2023
+						"PAR_dif","Kdown_dir","Kdown_dif", // added by Zhang, Sep 8, 2023
                         "rtz_totalvol",
                         "unsat_fc",
                         "rtz_fc",
@@ -493,7 +495,7 @@ void add_headers(struct world_output_file_object *world_output_files,
 	/*--------------------------------------------------------------*/
 	outfile = world_output_files[0].patch[0].monthly;
 	check = fprintf(outfile,
-        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
+        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
 		"year",
         "month",
 		"patchID",
@@ -501,19 +503,23 @@ void add_headers(struct world_output_file_object *world_output_files,
 		"surfQnet",//5
         "subQvnet",
 		"precip",
+		"meanPAR_dir",
+		"meanPAR_dif",
+		"meanKdown_dir",
+		"meanKdown_dif",
 		"pet",
         "et",
-		"sat_deficit_z",//10
+		"sat_deficit_z",
 		"peakLAI",
         "meanLAI",
         "psn",
         "denitrif",
-        "mineralization",//15
+        "mineralization",
         "uptake",
         "subNO3net",
         "subNO3vnet",
         "subDOCnet",
-        "no3drain2gw",//20
+        "no3drain2gw",
         "satChance",
         "plantlimitN",
         "plantlimitQ");

@@ -434,9 +434,13 @@ void	canopy_stratum_daily_F(
 		PAR_diffuse = min(patch[0].PAR_diffuse / (stratum[0].cover_fraction), zone[0].PAR_diffuse);
 
 		// Note: all changed to 0
-    	Kdown_direct = min(patch[0].Kdown_direct / (stratum[0].cover_fraction), 0); 
+    	// Kdown_direct = min(patch[0].Kdown_direct / (stratum[0].cover_fraction), 0); 
+		// Kup_direct = 0;//<--- calculated from here
+		// PAR_direct = min(patch[0].PAR_direct / (stratum[0].cover_fraction), 0);
+
+		Kdown_direct = 0.0; 
 		Kup_direct = 0;//<--- calculated from here
-		PAR_direct = min(patch[0].PAR_direct / (stratum[0].cover_fraction), 0);
+		PAR_direct = 0;
 	
     	// * rain_throughfall = min(patch[0].rain_throughfall / (stratum[0].cover_fraction),0);
 		// * snow_throughfall = min(patch[0].snow_throughfall / (stratum[0].cover_fraction), 0);
