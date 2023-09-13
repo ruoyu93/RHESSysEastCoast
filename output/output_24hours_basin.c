@@ -319,6 +319,9 @@ void	output_24hours_basin(			int routing_flag,
                     apipedrainDOC += patch[0].pipedrainYield_DOC * patch[0].area;
                     alawnirrigated += patch[0].grassIrrigation_m * patch[0].area;
                     asepticQ += patch[0].septicReleaseQ_m * patch[0].area;
+					if(patch[0].septicReleaseQ_m > 0){
+						printf("PatchID %d (area %f) septic water depth (m) = %f", patch[0].ID, patch[0].area, patch[0].septicReleaseQ_m);
+					}
 				}
 				else {
 						/* for Topmodel version compute only return flow and later added to streamflow */
