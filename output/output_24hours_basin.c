@@ -408,6 +408,7 @@ void	output_24hours_basin(			int routing_flag,
 		hgwQout += hillslope[0].gw.Qout * hill_area;
 		basin_area += hill_area;
 	}
+	printf("aarea: %f; aseptic: %f\n", aarea, asepticQ);
 	adC13 /=  aarea;
 	amortality_fract /=  aarea;
 	apcp /= zone_area;

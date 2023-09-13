@@ -925,7 +925,7 @@ void		patch_daily_F(
         double totalTransferWater = 0.0;
         double tmp_fraction = 0.0;
         patch[0].septicReleaseQ_m = patch[0].landuse_defaults[0][0].septic_water_load/patch[0].area; // release to patch
-        printf("LANDUSE SEPTIC 1: %f", patch[0].septicReleaseQ_m);
+        // printf("LANDUSE SEPTIC 1: %f", patch[0].septicReleaseQ_m);
         for (i =0; i < patch[0].innundation_list[d].num_drainIN_septic; i++){
             // from surface to surface
             sourceTransferWater = min(
@@ -933,10 +933,10 @@ void		patch_daily_F(
                               patch[0].innundation_list[d].drainIN_septic[i].DrainFrac *
                                 patch[0].landuse_defaults[0][0].septic_water_load/patch[0].area);// water depth release to patch
             
-            printf("sourceTranserWater 2: %f", sourceTransferWater);
+            // printf("sourceTranserWater 2: %f", sourceTransferWater);
             patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_surf = max(0.0, min(sourceTransferWater * patch[0].innundation_list[d].drainIN_septic[i].propDrainFrmSurf,
                                           patch[0].innundation_list[d].drainIN_septic[i].patch[0].detention_store));
-            printf("transfer_flux_surf 3: %f", patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_surf);
+            // printf("transfer_flux_surf 3: %f", patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_surf);
             patch[0].detention_store += patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_surf;
             
             tmp_fraction = min(1.0,(patch[0].innundation_list[d].drainIN_septic[i].patch[0].detention_store>0? patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_surf/patch[0].innundation_list[d].drainIN_septic[i].patch[0].detention_store : 0.0));
@@ -953,7 +953,7 @@ void		patch_daily_F(
             
             // drawing from deep GW
             patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_sub = max(0.0,min(sourceTransferWater * (1.0 - patch[0].innundation_list[d].drainIN_septic[i].propDrainFrmSurf), hillslope[0].gw.storage*hillslope[0].area/patch[0].area)); // actual available water from known source
-            printf("transfer_flux_sub 4: %f", patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_sub);
+            // printf("transfer_flux_sub 4: %f", patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_sub);
             // perform water and solute transfer
             patch[0].detention_store += patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_sub;
             tmp_fraction = min(1.0,(hillslope[0].gw.storage>0? patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_sub*patch[0].area/hillslope[0].area/hillslope[0].gw.storage : 0.0));
@@ -974,7 +974,7 @@ void		patch_daily_F(
         }// for loop of sources
         if(patch[0].innundation_list[d].num_drainIN_septic>0){
             patch[0].septicReleaseQ_m = totalTransferWater;
-			printf("totalTransferWater 5: %f", totalTransferWater);
+			printf("totalTransferWater at patch %d: %f\n", patch[0].ID, totalTransferWater);
             // one source per septic output
             patch[0].surface_NO3 += patch[0].landuse_defaults[0][0].septic_NO3_load/patch[0].area * patch[0].innundation_list[d].num_drainIN_septic;
         }
