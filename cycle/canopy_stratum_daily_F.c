@@ -447,7 +447,7 @@ void	canopy_stratum_daily_F(
 		rain_throughfall = 0.0; 
 		snow_throughfall = 0.0;
 	}
-	else if(stratum[0].defaults[0][0].ID == 100){
+	else if(stratum[0].defaults[0][0].ID == 98){
 		// The open space between solar panels, where
 		// 1) radiation as usual
 		// 2) receive additional rainfall from solar panel area
@@ -460,8 +460,16 @@ void	canopy_stratum_daily_F(
 		PAR_direct = min(patch[0].PAR_direct / (stratum[0].cover_fraction), zone[0].PAR_direct);
 
 		// Rain/snow at solar is added to open space
-		rain_throughfall = min(patch[0].rain_throughfall*(1.0+stratum[0].cover_fraction*solar_frac/(1.0-solar_frac)) / (stratum[0].cover_fraction), zone[0].rain);
-		snow_throughfall = min(patch[0].snow_throughfall*(1.0+stratum[0].cover_fraction*solar_frac/(1.0-solar_frac)) / (stratum[0].cover_fraction), zone[0].snow);
+		// Edited Sep 19, 2023 by Zhang:
+		/*
+		/ The open space receives all rainfall for the entire solar farm
+		/ Given the solar panel fraction in solar farm, and the 
+		*/
+		rain_throughfall = patch[0].rain_throughfall*(1.0/(1.0-solar_frac)) / (stratum[0].cover_fraction);
+		snow_throughfall = patch[0].snow_throughfall*(1.0/(1.0-solar_frac)) / (stratum[0].cover_fraction);
+
+		// rain_throughfall = min(patch[0].rain_throughfall*(1.0/(1.0-solar_frac)) / (stratum[0].cover_fraction), zone[0].rain*1.0/(1.0-solar_frac));
+		// snow_throughfall = min(patch[0].snow_throughfall*(1.0/(1.0-solar_frac)) / (stratum[0].cover_fraction), zone[0].snow*1.0/(1.0-solar_frac));
 	}
 	else{
 		// Original routing for other spaces without solar panel
