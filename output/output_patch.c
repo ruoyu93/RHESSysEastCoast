@@ -161,7 +161,7 @@ void	output_patch(
                     patch[0].grassIrrigation_m,
                    
                     // ADDED 4 additional output for radiation, BY Zhang, Sep 8, 2023
-                    patch[0].PAR_direct,
+                    patch[0].PAR_direct,  // 20
                     patch[0].PAR_diffuse,
                     patch[0].Kdown_direct,
                     patch[0].Kdown_diffuse,
@@ -173,12 +173,12 @@ void	output_patch(
                     patch[0].unsat_storage*1000.0,
                     top12cm_storage * 1000.0,
                     top12cm_potential_sat * 1000.0,
-                    patch[0].rootzone.depth * 1000.0,
+                    patch[0].rootzone.depth * 1000.0,  // 30
                     patch[0].soil_defaults[0][0].soil_depth * 1000.0,
                     top30cm_storage * 1000.0,
                     top30cm_potential_sat * 1000.0,
                     top60cm_storage * 1000.0,
-                    top60cm_potential_sat * 1000.0
+                    top60cm_potential_sat * 1000.0   // 35
                     );
 
 	if (check <= 0) {

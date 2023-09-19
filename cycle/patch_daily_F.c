@@ -1118,7 +1118,7 @@ void		patch_daily_F(
 			/*--------------------------------------------------------------*/
             // plants within the same layer does not affect each other!
 			for ( stratum=0 ; stratum<patch[0].layers[layer].count; stratum++ ){
-					canopy_stratum_daily_F(
+					canopy_stratum_daily_F(  // 
 						world,
 						basin,
 						hillslope,
