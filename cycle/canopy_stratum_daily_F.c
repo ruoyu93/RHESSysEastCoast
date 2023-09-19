@@ -465,8 +465,8 @@ void	canopy_stratum_daily_F(
 		/ The open space receives all rainfall for the entire solar farm
 		/ Given the solar panel fraction in solar farm, and the 
 		*/
-		rain_throughfall = patch[0].rain_throughfall*(1.0/(1.0-solar_frac)) / (stratum[0].cover_fraction);
-		snow_throughfall = patch[0].snow_throughfall*(1.0/(1.0-solar_frac)) / (stratum[0].cover_fraction);
+		rain_throughfall = patch[0].rain_throughfall*(1.0/(1.0-solar_frac)); // / (stratum[0].cover_fraction);
+		snow_throughfall = patch[0].snow_throughfall*(1.0/(1.0-solar_frac)); // / (stratum[0].cover_fraction);
 
 		// rain_throughfall = min(patch[0].rain_throughfall*(1.0/(1.0-solar_frac)) / (stratum[0].cover_fraction), zone[0].rain*1.0/(1.0-solar_frac));
 		// snow_throughfall = min(patch[0].snow_throughfall*(1.0/(1.0-solar_frac)) / (stratum[0].cover_fraction), zone[0].snow*1.0/(1.0-solar_frac));
