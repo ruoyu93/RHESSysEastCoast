@@ -424,8 +424,15 @@ void	canopy_stratum_daily_F(
 	// * The fraction of solar panel in a patch is provided in landuse def file
 
 	solar_frac = patch[0].landuse_defaults[0][0].solar_panel_frac;
+
+	// Beta version:
+	// Users provide the stratum ID of solar panel and open space in between
+	// in "landuse defaults"
+	// Code:
+	// solar_panel_ID = patch[0].landuse_defaults[0][0].solar_panel_ID;
+	// solar_open_space_ID = patch[0].landuse_defaults[0][0].solar_open_space_ID;
 	
-	if(stratum[0].defaults[0][0].ID == 99){
+	if(stratum[0].defaults[0][0].ID == patch[0].landuse_defaults[0][0].solar_panel_ID){
 		// The solar panel area of a patch, where 
 		// 1) all direct radiation is blocked and only diffused radiation reach below panels
 		// 2) no rainfall, will be routed to nearby open space
@@ -447,7 +454,7 @@ void	canopy_stratum_daily_F(
 		rain_throughfall = 0.0; 
 		snow_throughfall = 0.0;
 	}
-	else if(stratum[0].defaults[0][0].ID == 98){
+	else if(stratum[0].defaults[0][0].ID == patch[0].landuse_defaults[0][0].solar_open_space_ID){
 		// The open space between solar panels, where
 		// 1) radiation as usual
 		// 2) receive additional rainfall from solar panel area
@@ -461,15 +468,13 @@ void	canopy_stratum_daily_F(
 
 		// Rain/snow at solar is added to open space
 		// Edited Sep 19, 2023 by Zhang:
-		/*
+		/**
 		/ The open space receives all rainfall for the entire solar farm
 		/ Given the solar panel fraction in solar farm, and the 
-		*/
-		rain_throughfall = patch[0].rain_throughfall*(1.0/(1.0-solar_frac)); // / (stratum[0].cover_fraction);
-		snow_throughfall = patch[0].snow_throughfall*(1.0/(1.0-solar_frac)); // / (stratum[0].cover_fraction);
+		**/
 
-		// rain_throughfall = min(patch[0].rain_throughfall*(1.0/(1.0-solar_frac)) / (stratum[0].cover_fraction), zone[0].rain*1.0/(1.0-solar_frac));
-		// snow_throughfall = min(patch[0].snow_throughfall*(1.0/(1.0-solar_frac)) / (stratum[0].cover_fraction), zone[0].snow*1.0/(1.0-solar_frac));
+		rain_throughfall = (1.0/(1.0-solar_frac))*min(patch[0].rain_throughfall / (stratum[0].cover_fraction), zone[0].rain);
+		snow_throughfall = (1.0/(1.0-solar_frac))*min(patch[0].snow_throughfall*(1.0/(1.0-solar_frac)) / (stratum[0].cover_fraction), zone[0].snow);
 	}
 	else{
 		// Original routing for other spaces without solar panel
