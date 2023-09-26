@@ -97,9 +97,9 @@ struct landuse_default *construct_landuse_defaults(
 		default_object_list[i].fertilizer_NO3 = 	getDoubleParam(&paramCnt, &paramPtr, "fertilizer_NO3", "%lf", 0.0, 1);//kgN/m2/each time
 		default_object_list[i].fertilizer_NH4 = 	getDoubleParam(&paramCnt, &paramPtr, "fertilizer_NH4", "%lf", 0.0, 1);//kgN/m2/each time
         default_object_list[i].fertilizer_freq =     getIntParam(&paramCnt, &paramPtr, "fertilizer_freq", "%d", 30, 1); // # of days between each time
-        default_object_list[i].solar_panel_frac =     getDoubleParam(&paramCnt, &paramPtr, "solar_panel_frac", "%d", 0.0, 1); 
-        default_object_list[i].solar_panel_ID =     getDoubleParam(&paramCnt, &paramPtr, "solar_panel_ID", "%d", 99, 1); 
-        default_object_list[i].solar_open_space_ID =     getDoubleParam(&paramCnt, &paramPtr, "solar_open_space_ID", "%d", 98, 1); 
+        default_object_list[i].solar_panel_frac =     getDoubleParam(&paramCnt, &paramPtr, "solar_panel_frac", "%lf", 0.0, 1); 
+        default_object_list[i].solar_panel_ID =     getIntParam(&paramCnt, &paramPtr, "solar_panel_ID", "%d", 99, 1); 
+        default_object_list[i].solar_open_space_ID =     getIntParam(&paramCnt, &paramPtr, "solar_open_space_ID", "%d", 98, 1); 
         default_object_list[i].fertilizer_decay_rate = -log(0.1)/(1.0*default_object_list[i].fertilizer_freq);
         // 1.0 - exp(-10/(1.0*default_object_list[i].fertilizer_freq));
         // for period "default_object_list[i].fertilizer_freq", the stored fertilizer should have been gone 10% N0)

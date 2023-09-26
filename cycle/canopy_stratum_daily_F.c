@@ -453,6 +453,7 @@ void	canopy_stratum_daily_F(
 		// * snow_throughfall = min(patch[0].snow_throughfall / (stratum[0].cover_fraction), 0);
 		rain_throughfall = 0.0; 
 		snow_throughfall = 0.0;
+		
 	}
 	else if(stratum[0].defaults[0][0].ID == patch[0].landuse_defaults[0][0].solar_open_space_ID){
 		// The open space between solar panels, where
@@ -473,8 +474,10 @@ void	canopy_stratum_daily_F(
 		/ Given the solar panel fraction in solar farm, and the 
 		**/
 
-		rain_throughfall = (1.0/(1.0-solar_frac))*min(patch[0].rain_throughfall / (stratum[0].cover_fraction), zone[0].rain);
-		snow_throughfall = (1.0/(1.0-solar_frac))*min(patch[0].snow_throughfall*(1.0/(1.0-solar_frac)) / (stratum[0].cover_fraction), zone[0].snow);
+		rain_throughfall = min(patch[0].rain_throughfall/(stratum[0].cover_fraction), zone[0].rain);
+		snow_throughfall = min(patch[0].snow_throughfall/(stratum[0].cover_fraction), zone[0].snow);
+		rain_throughfall = rain_throughfall * 1.0 / (1.0 - solar_frac);
+		snow_throughfall = snow_throughfall * 1.0 / (1.0 - solar_frac);
 	}
 	else{
 		// Original routing for other spaces without solar panel
@@ -492,6 +495,21 @@ void	canopy_stratum_daily_F(
     
 	stratum[0].rain_receive = rain_throughfall;
 	// (end) *//
+	if(patch[0].ID == 5405){
+	printf("\nDate %d-%d-%d in Patch %d, stratum %d\n     zone_rain=%lf stra_rain=%lf \n     PARdirect=%lf PARdiffuse=%lf\n    solarFrac=%lf factor=%lf", 
+				current_date.year,
+				current_date.month,
+				current_date.day,
+				patch[0].ID,
+				stratum[0].defaults[0][0].ID,
+				zone[0].rain,
+				rain_throughfall,
+				PAR_direct,
+				PAR_diffuse,
+				patch[0].landuse_defaults[0][0].solar_panel_frac,
+				1.0-solar_frac);
+	}
+
     
 	ga = patch[0].ga;
 	gasnow = patch[0].gasnow;
