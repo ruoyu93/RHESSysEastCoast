@@ -495,20 +495,20 @@ void	canopy_stratum_daily_F(
     
 	stratum[0].rain_receive = rain_throughfall;
 	// (end) *//
-	if(patch[0].ID == 5405){
-	printf("\nDate %d-%d-%d in Patch %d, stratum %d\n     zone_rain=%lf stra_rain=%lf \n     PARdirect=%lf PARdiffuse=%lf\n    solarFrac=%lf factor=%lf", 
-				current_date.year,
-				current_date.month,
-				current_date.day,
-				patch[0].ID,
-				stratum[0].defaults[0][0].ID,
-				zone[0].rain,
-				rain_throughfall,
-				PAR_direct,
-				PAR_diffuse,
-				patch[0].landuse_defaults[0][0].solar_panel_frac,
-				1.0-solar_frac);
-	}
+	// if(patch[0].ID == 5405){
+	// printf("\nDate %d-%d-%d in Patch %d, stratum %d\n     zone_rain=%lf stra_rain=%lf \n     PARdirect=%lf PARdiffuse=%lf\n    solarFrac=%lf factor=%lf", 
+	// 			current_date.year,
+	// 			current_date.month,
+	// 			current_date.day,
+	// 			patch[0].ID,
+	// 			stratum[0].defaults[0][0].ID,
+	// 			zone[0].rain,
+	// 			rain_throughfall,
+	// 			PAR_direct,
+	// 			PAR_diffuse,
+	// 			patch[0].landuse_defaults[0][0].solar_panel_frac,
+	// 			1.0-solar_frac);
+	// }
 
     
 	ga = patch[0].ga;
