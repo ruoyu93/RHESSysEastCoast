@@ -173,8 +173,8 @@ void	output_patch(
                     top30cm_storage * 1000.0,
                     top30cm_potential_sat * 1000.0,
                     top60cm_storage * 1000.0,
-                    top60cm_potential_sat * 1000.0,
-                    apsn*1000
+                    top60cm_potential_sat * 1000.0
+                    // apsn*1000
                     );
 
 	if (check <= 0) {
