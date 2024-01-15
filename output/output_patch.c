@@ -49,11 +49,13 @@ void	output_patch(
     double alai = 0.0;
     double treeLAI = 0.0;
     double nontreeLAI = 0.0;
+    double apsn = 0.0;
 	for ( layer=0 ; layer<patch[0].num_layers; layer++ ){
 		for ( c=0 ; c<patch[0].layers[layer].count; c++ ){
             
             coverf = patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].cover_fraction;
 			alai += coverf * patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].epv.proj_lai;
+            apsn += coverf * patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].cs.net_psn;
             
             if(patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].defaults[0][0].epc.veg_type == TREE && patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].defaults[0][0].ID!=802){
                 treeLAI += coverf * patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].epv.proj_lai;
@@ -138,7 +140,7 @@ void	output_patch(
     
 
     
-	check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
+	check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
                     
 					current_date.year, current_date.month, current_date.day, //1,2,3,
 					patch[0].ID, //4
@@ -171,7 +173,8 @@ void	output_patch(
                     top30cm_storage * 1000.0,
                     top30cm_potential_sat * 1000.0,
                     top60cm_storage * 1000.0,
-                    top60cm_potential_sat * 1000.0
+                    top60cm_potential_sat * 1000.0,
+                    apsn*1000
                     );
 
 	if (check <= 0) {
