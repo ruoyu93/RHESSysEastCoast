@@ -928,7 +928,7 @@ void		patch_daily_F(
 		}
 		else{
     		patch[0].rain_throughfall = zone[0].rain;
-		}
+		}}
     // problem: irrigation should be adding to rain_throughfall
     // irrigation should be added to patch[0].detention_store @ LINE 1583
 
