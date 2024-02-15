@@ -896,10 +896,12 @@ void		patch_daily_F(
 	/*--------------------------------------------------------------*/
 	/*	process any daily rainfall				*/
 	/*--------------------------------------------------------------*/
-	if (command_line[0].snow_scale_flag == 1)
+	if (command_line[0].snow_scale_flag == 1){
 		patch[0].snow_throughfall = zone[0].snow * patch[0].snow_redist_scale;
-    else
+	}
+    else{
         patch[0].snow_throughfall = zone[0].snow;
+	}
 
 	/// Added by Roy Zhang, Feb 15. 
 	/// ----------------------------------------
