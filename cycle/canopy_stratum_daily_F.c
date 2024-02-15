@@ -423,6 +423,7 @@ void	canopy_stratum_daily_F(
     rain_throughfall = min(patch[0].rain_throughfall / (stratum[0].cover_fraction), zone[0].rain);
 	snow_throughfall = min(patch[0].snow_throughfall / (stratum[0].cover_fraction), zone[0].snow);
     
+	// stratum[0].rain_receive = rain_throughfall;
     
 	ga = patch[0].ga;
 	gasnow = patch[0].gasnow;
