@@ -896,7 +896,37 @@ void		patch_daily_F(
 	/*--------------------------------------------------------------*/
 	/*	process any daily rainfall				*/
 	/*--------------------------------------------------------------*/
-    patch[0].rain_throughfall = zone[0].rain;
+	if (command_line[0].snow_scale_flag == 1)
+		patch[0].snow_throughfall = zone[0].snow * patch[0].snow_redist_scale;
+    else
+        patch[0].snow_throughfall = zone[0].snow;
+
+	/// Added by Roy Zhang, Feb 15. 
+	/// ----------------------------------------
+	///    To force rainfall on solar patch to be distributed to west (80%) & east (20%).  
+	/// Note: all solar-realted patches have to be pure patch, which means only one type of vegetation
+	///       ID's (i.e., 99 - solar panel (no rainfall); 98 - east open (1.2* rainfall); 100 - west open
+	///       (1.8* rainfall).
+
+	for ( j=0 ; j<patch[0].num_canopy_strata ; j++ ){
+        if(patch[0].canopy_strata[j][0].defaults[0][0].ID == 99){
+			patch[0].rain_throughfall = 0.0;
+			patch[0].snow_throughfall = 0.0;
+			break;
+		}
+		else if(patch[0].canopy_strata[j][0].defaults[0][0].ID == 98){
+			patch[0].rain_throughfall = zone[0].rain * 1.2;
+			patch[0].snow_throughfall = patch[0].snow_throughfall * 1.2;
+			break;
+		}
+		else if(patch[0].canopy_strata[j][0].defaults[0][0].ID == 100){
+			patch[0].rain_throughfall = zone[0].rain * 1.8;
+			patch[0].snow_throughfall = patch[0].snow_throughfall * 1.8;
+			break;
+		}
+		else{
+    		patch[0].rain_throughfall = zone[0].rain;
+		}
     // problem: irrigation should be adding to rain_throughfall
     // irrigation should be added to patch[0].detention_store @ LINE 1583
 
@@ -907,11 +937,6 @@ void		patch_daily_F(
     // finally is released from stratum[0].NO3_stored in patch_dailyF.c and canopy_stratum_dailyF.c
 	patch[0].NO3_throughfall = 0; // this is updated by the hourly accumulated stratum[0].NO3_stored in the canopy_stratum_dailyF.c
 
-
-	if (command_line[0].snow_scale_flag == 1)
-		patch[0].snow_throughfall = zone[0].snow * patch[0].snow_redist_scale;
-    else
-        patch[0].snow_throughfall = zone[0].snow;
 
 	patch[0].wind = zone[0].wind;
 	patch[0].windsnow = zone[0].wind;
