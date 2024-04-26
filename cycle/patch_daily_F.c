@@ -560,13 +560,78 @@ void		patch_daily_F(
         double sourceTransferWater = 0.0;
         double totalTransferWater = 0.0;
         double tmp_fraction = 0.0;
-        for (i =0; i < patch[0].innundation_list[d].num_drainIN_irrigation; i++){
+	//     // Old version of grassIrrigation /RZ, Apr 25, 2024	
+    //     for (i =0; i < patch[0].innundation_list[d].num_drainIN_irrigation; i++){
         
+    //         // from surface to surface
+    //         sourceTransferWater = min(
+    //                           patch[0].innundation_list[d].drainIN_irrigation[i].maxDailyDrain,
+    //                           patch[0].innundation_list[d].drainIN_irrigation[i].DrainFrac * patch[0].grassIrrigation_m); // a fraction of water demand from this konwn source
+            
+    //         patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_surf = max(0.0, min(sourceTransferWater * patch[0].innundation_list[d].drainIN_irrigation[i].propDrainFrmSurf,
+    //             patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].detention_store));// actual available water from known source
+            
+    //         // perform water and solute transfer
+    //         patch[0].detention_store += patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_surf;
+    //         tmp_fraction = min(1.0,(patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].detention_store>0? patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_surf/patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].detention_store : 0.0));
+    //         patch[0].surface_NO3 += tmp_fraction * patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].surface_NO3;
+    //         patch[0].surface_NH4 += tmp_fraction * patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].surface_NH4;
+    //         patch[0].surface_DON += tmp_fraction * patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].surface_DON;
+    //         patch[0].surface_DOC += tmp_fraction * patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].surface_DOC;
+    //         // substrate the source water and solute
+    //         tmp_fraction = min(1.0,max(0.0, 1.0 - tmp_fraction));
+    //         patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].detention_store *= tmp_fraction;
+    //         patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].surface_NO3 *= tmp_fraction;
+    //         patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].surface_NH4 *= tmp_fraction;
+    //         patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].surface_DON *= tmp_fraction;
+    //         patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].surface_DOC *= tmp_fraction;
+            
+    //         // drawing from deep GW
+    //         patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_sub = max(0.0,min(sourceTransferWater * (1.0 - patch[0].innundation_list[d].drainIN_irrigation[i].propDrainFrmSurf), hillslope[0].gw.storage*hillslope[0].area/patch[0].area)); // actual available water from known source
+            
+    //         // perform water and solute transfer
+    //         patch[0].detention_store += patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_sub;
+    //         tmp_fraction = min(1.0,(hillslope[0].gw.storage>0? patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_sub*patch[0].area/hillslope[0].area/hillslope[0].gw.storage : 0.0));
+    //         patch[0].surface_NO3 += tmp_fraction * hillslope[0].gw.NO3;
+    //         patch[0].surface_NH4 += tmp_fraction * hillslope[0].gw.NH4;
+    //         patch[0].surface_DON += tmp_fraction * hillslope[0].gw.DOC;
+    //         patch[0].surface_DOC += tmp_fraction * hillslope[0].gw.DON;
+    //         // substrate the source water and solute
+    //         tmp_fraction = min(1.0,max(0.0, 1.0 - tmp_fraction));
+    //         hillslope[0].gw.storage *= tmp_fraction;
+    //         hillslope[0].gw.NO3 *= tmp_fraction;
+    //         hillslope[0].gw.NH4 *= tmp_fraction;
+    //         hillslope[0].gw.DOC *= tmp_fraction;
+    //         hillslope[0].gw.DON *= tmp_fraction;
+            
+    //         // calculate total water gain from the source to this patch
+    //         totalTransferWater += patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_sub + patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_surf;
+    //     }// end of for loop i; number of sources
+    //     if(patch[0].innundation_list[d].num_drainIN_irrigation>0){ patch[0].grassIrrigation_m = totalTransferWater; }
+    //     // note:: solutes and water are transferred by the processes above
+    //     // note:: solutes at sources are substrated by the processes above
+        
+    // }// irrigation
+
+	// Crop irrigation code
+	// (begin: Apr 25, 2024, Ruoyu Zhang)
+	// **-----------------------------------------------------------------------------
+	//     New irrigation for Crop/grass  
+	//     To do: Water sources from source patches i) detention store and ii) saturated zone
+	//     Note:  1) Irrigation demand -> calculated above based on ET/PET
+	//            2) Extraction from source patches' detention stores first, then saturated zone
+	//            3) Extraction cannot exceed the available water from both storages
+	// -----------------------------------------------------------------------------**
+
+	// (iterate through source patches)
+	for (i =0; i < patch[0].innundation_list[d].num_drainIN_irrigation; i++){
             // from surface to surface
             sourceTransferWater = min(
                               patch[0].innundation_list[d].drainIN_irrigation[i].maxDailyDrain,
                               patch[0].innundation_list[d].drainIN_irrigation[i].DrainFrac * patch[0].grassIrrigation_m); // a fraction of water demand from this konwn source
             
+			// Water transfer from one of source patches' detention store (or pond?)
+			// * Note 3) --> extraction cannot exceed the water available in source patch's detention store
             patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_surf = max(0.0, min(sourceTransferWater * patch[0].innundation_list[d].drainIN_irrigation[i].propDrainFrmSurf,
                 patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].detention_store));// actual available water from known source
             
@@ -585,24 +650,94 @@ void		patch_daily_F(
             patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].surface_DON *= tmp_fraction;
             patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].surface_DOC *= tmp_fraction;
             
-            // drawing from deep GW
-            patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_sub = max(0.0,min(sourceTransferWater * (1.0 - patch[0].innundation_list[d].drainIN_irrigation[i].propDrainFrmSurf), hillslope[0].gw.storage*hillslope[0].area/patch[0].area)); // actual available water from known source
-            
-            // perform water and solute transfer
-            patch[0].detention_store += patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_sub;
-            tmp_fraction = min(1.0,(hillslope[0].gw.storage>0? patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_sub*patch[0].area/hillslope[0].area/hillslope[0].gw.storage : 0.0));
-            patch[0].surface_NO3 += tmp_fraction * hillslope[0].gw.NO3;
-            patch[0].surface_NH4 += tmp_fraction * hillslope[0].gw.NH4;
-            patch[0].surface_DON += tmp_fraction * hillslope[0].gw.DOC;
-            patch[0].surface_DOC += tmp_fraction * hillslope[0].gw.DON;
+            // drawing from saturation storage
+
+			// *------------------------------------
+			// Step 1): Caculate demand from souce patch's saturated storage
+			double irrigation_sub_drain_demand = 0;
+			irrigation_sub_drain_demand = max(0.0, sourceTransferWater - patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_surf);
+			// ------------------------------------*
+
+			// *------------------------------------
+			// Step 2): Calculate maximal extraction from the source patch
+			//          Note: cannot extract if the demand is greaterthan the max(sat_def) 
+			//                or source patch's soil water capacity
+			
+			// ** Is this correct?? ** Using field capacity of ^^soil_water_cap^^?? 
+			//  Use soil_water_cap for now.....
+			patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].available_soil_water = patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].soil_defaults[0][0].soil_water_cap - patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_deficit;
+
+			irrigation_sub_drain_demand = min(irrigation_sub_drain_demand, patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].available_soil_water);
+
+			patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_deficit += irrigation_sub_drain_demand; // extraction completed
+			patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_sub = irrigation_sub_drain_demand;
+
+			// Step 3): Update the new saturated zone water profile of the source patch
+			if(patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_deficit >= 0){
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_deficit = min(patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_deficit, patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].soil_defaults[0][0].soil_water_cap);
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].available_soil_water = patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].soil_defaults[0][0].soil_water_cap - patch[0].sat_deficit;
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct = patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_deficit * patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].soil_defaults[0][0].max_sat_def_1;
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_index = (int)(patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct*1000);
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_indexM = 1000*(patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct - patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_index*0.001);
+				
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_deficit_z = patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_indexM * patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].soil_defaults[0][0].sat_def_z[patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_index+1] + (1.0-patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_indexM) * patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].soil_defaults[0][0].sat_def_z[patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_index];
+			}else{
+				// when sat_deficit <= 0 -> source patch is saturated
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].available_soil_water = patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].soil_defaults[0][0].soil_water_cap;
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_deficit_z = patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_deficit; // which is non-positive -> 0 and above 
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct = 0.0;
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_index = 0;
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_indexM = 0;
+			}
+			double source_totalfc=0;
+			source_totalfc = patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_indexM * patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].soil_defaults[0][0].fc1_0z[patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_index+1] + (1.0-patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_indexM) * patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].soil_defaults[0][0].fc1_0z[patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_index];
+			
+			if (patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_deficit < ZERO) {
+				//patch[0].aboveWT_SatPct = 1.0;
+				//patch[0].rootzone.SatPct = 1.0;
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].rootzone.field_capacity = 0.0;
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].field_capacity = 0.0;
+			} else {
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].rootzone.field_capacity = source_totalfc * patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].zeroRootCoef * (patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].rootzone_scale_ref*patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].rootzone_end_reffc[patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_index] + (1.0-patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].rootzone_scale_ref)*patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].rootzone_start_reffc[patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_def_pct_index]);
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].rootzone.field_capacity = min(patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].rootzone.field_capacity, patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].rootzone.potential_sat);
+				patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].field_capacity = max(0.0,min(patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_deficit-patch[0].rootzone.potential_sat, source_totalfc - patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].rootzone.field_capacity));
+			}
+				
+			// perform water transfer
+			patch[0].detention_store += patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_sub;
+
+			// Perform NUTRIENTS transfer
+			//     --> Calculate the % of sat water being transfered to this patch
+			double tmp_ratio = min(1.0, patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_sub/patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].available_soil_water);
+			
+			patch[0].surface_NO3 += patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_NO3 * tmp_ratio;
+        	patch[0].surface_NH4 += patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_NH4 * tmp_ratio;
+        	patch[0].surface_DON += patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_DOC * tmp_ratio;
+        	patch[0].surface_DOC += patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_DON * tmp_ratio;
+			patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_NO3 *= 1.0 - tmp_ratio;
+			patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_NH4 *= 1.0 - tmp_ratio;
+			patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_DOC *= 1.0 - tmp_ratio;
+			patch[0].innundation_list[d].drainIN_irrigation[i].patch[0].sat_DON *= 1.0 - tmp_ratio;
+
+
+			// Trasfer if source is groundwater. Currently disabled.
+
+			// -------- DISABLED -------------
+			// tmp_fraction = min(1.0,(hillslope[0].gw.storage>0? patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_sub*patch[0].area/hillslope[0].area/hillslope[0].gw.storage : 0.0));
+			// patch[0].surface_NO3 += tmp_fraction * hillslope[0].gw.NO3;
+			// patch[0].surface_NH4 += tmp_fraction * hillslope[0].gw.NH4;
+			// patch[0].surface_DON += tmp_fraction * hillslope[0].gw.DOC;
+			// patch[0].surface_DOC += tmp_fraction * hillslope[0].gw.DON;
             // substrate the source water and solute
-            tmp_fraction = min(1.0,max(0.0, 1.0 - tmp_fraction));
-            hillslope[0].gw.storage *= tmp_fraction;
-            hillslope[0].gw.NO3 *= tmp_fraction;
-            hillslope[0].gw.NH4 *= tmp_fraction;
-            hillslope[0].gw.DOC *= tmp_fraction;
-            hillslope[0].gw.DON *= tmp_fraction;
-            
+			// Note: these are performed before to update sat zone water
+            // tmp_fraction = min(1.0,max(0.0, 1.0 - tmp_fraction));
+            // hillslope[0].gw.storage *= tmp_fraction;
+            // hillslope[0].gw.NO3 *= tmp_fraction;
+            // hillslope[0].gw.NH4 *= tmp_fraction;
+            // hillslope[0].gw.DOC *= tmp_fraction;
+            // hillslope[0].gw.DON *= tmp_fraction;
+			// -------- DISABLED -------------
+			
             // calculate total water gain from the source to this patch
             totalTransferWater += patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_sub + patch[0].innundation_list[d].drainIN_irrigation[i].transfer_flux_surf;
         }// end of for loop i; number of sources
@@ -611,6 +746,8 @@ void		patch_daily_F(
         // note:: solutes at sources are substrated by the processes above
         
     }// irrigation
+	// Crop irrigation code
+	// (end: Apr 25, 2024, Ruoyu Zhang)
     
     patch[0].sewerdrained = 0.0;
     patch[0].sewerdrained_NO3 = 0.0;
