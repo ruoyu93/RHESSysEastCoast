@@ -936,6 +936,13 @@ struct patch_object *construct_patch(
     patch[0].acc_month.satChance = 0.0;
     patch[0].acc_month.plantlimitN = 0.0;
     patch[0].acc_month.plantlimitQ = 0.0;
+
+    //  RZ UPDATED (May 5, 2024)
+    //  NO3 balance at monthly scale
+    patch[0].acc_month.surf_NO3 = 0.0;
+    patch[0].acc_month.surf_NO3_in = 0.0;
+    patch[0].acc_month.surf_NO3_out = 0.0;
+
     
     // annual
     //patch[0].acc_year = (struct accumulate_patch_object *) alloc( 1 * sizeof( struct accumulate_patch_object ),"accumulate_patch_object", "construct_patch" );
@@ -958,6 +965,22 @@ struct patch_object *construct_patch(
     patch[0].acc_year.satChance = 0.0;
     patch[0].acc_year.plantlimitN = 0.0;
     patch[0].acc_year.plantlimitQ = 0.0;
+
+    //  ** ------- RZ UPDATED (May 5, 2024)
+    //  NO3 balance at monthly scale
+    //    1. Surface NO3
+    patch[0].acc_month.surf_NO3 = 0.0;
+    patch[0].acc_month.surf_NO3_in = 0.0;
+    patch[0].acc_month.surf_NO3_out = 0.0;
+    //    2. Soil NO3
+    patch[0].acc_month.soil_NO3 = 0.0;    
+    //    3. Saturated zone NO3
+    patch[0].acc_month.sat_NO3 = 0.0; // RZ: (May 3, 2024) Added for show sat zone NO3
+    patch[0].acc_month.sat_NO3_Qin = 0.0;
+    patch[0].acc_month.sat_NO3_Qout = 0.0;
+    // --------- ** [end] [RZ]
+
+    
     
 	return(patch);
 } /*end construct_patch.c*/

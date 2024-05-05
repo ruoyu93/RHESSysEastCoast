@@ -136,11 +136,30 @@ void update_basin_patch_accumulator(
                 patch[0].acc_month.satChance += (patch[0].sat_deficit<=0? 1.0:0.0);
                 patch[0].acc_month.plantlimitN += patch[0].soil_ns.fract_potential_uptake;
                 patch[0].acc_month.plantlimitQ += patch[0].trans_reduc_perc;
+
+                //  ** ------- RZ UPDATED (May 5, 2024)
+                //  NO3 balance at monthly scale
+                //    1. Surface NO3
+                patch[0].acc_month.surf_NO3 = patch[0].surface_NO3;
+                patch[0].acc_month.surf_NO3_in = patch[0].surface_NO3_Qin;
+                patch[0].acc_month.surf_NO3_out = patch[0].surface_NO3_Qout;
+                //    2. Soil NO3
+                patch[0].acc_month.soil_NO3 = patch[0].soil_ns.nitrate;    
+                //    3. Saturated zone NO3
+                patch[0].acc_month.sat_NO3 += patch[0].sat_NO3; // RZ: (May 3, 2024) Added for show sat zone NO3
+                patch[0].acc_month.sat_NO3_Qin += patch[0].soil_ns.NO3_Qin_total;
+                patch[0].acc_month.sat_NO3_Qout += patch[0].soil_ns.NO3_Qout_total;
+
+                // RZ: (May 3, 2024) Added for show sat zone to gw NO3
+                patch[0].acc_month.no3drain2gw += patch[0].gw_drainage_NO3; // was patch[0].soil_defaults[0][0].rtz2sat_def_0z[patch[0].rtz2_index] before
                 
+                // --------- ** [end] [RZ]
+
                 patch[0].acc_month.activeS += theta;
                 patch[0].acc_month.denitrifaspQs += water_scalar0;
                 patch[0].acc_month.denitrifspQs += water_scalar1;
                 patch[0].acc_month.denitrif += patch[0].ndf.denitrif;
+                patch[0].acc_month.nitrif += patch[0].ndf.sminn_to_nitrate;  // added by RZ (May 5, 2024)
                 patch[0].acc_month.nitrifaspQs += water_scalar2;
                 patch[0].acc_month.nitrifspQs += water_scalar3;
                 patch[0].acc_month.mineralization += patch[0].ndf.net_mineralized; // immob = (patch[0].ndf.net_mineralized - patch[0].ndf.mineralized)// positive is mineralization

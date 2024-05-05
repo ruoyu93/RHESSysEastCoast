@@ -1441,7 +1441,21 @@ struct accumulate_patch_object
     double subNO3vnet;
     double subDOCnet;
     double no3drain2gw;
+
+        //  ** ------- RZ UPDATED (May 5, 2024)
+    //  NO3 balance at monthly scale
+    //    1. Surface NO3
+    double surf_NO3;
+    double surf_NO3_in;
+    double surf_NO3_out;
+    //    2. Soil NO3
+    double soil_NO3;    
+    //    3. Saturated zone NO3
+    double sat_NO3; // RZ: (May 3, 2024) Added for show sat zone NO3
+    double sat_NO3_Qin;
+    double sat_NO3_Qout;
     //double no3diffuse2gw;
+    double nitrif;
 };
 /*----------------------------------------------------------*/
 /*      Define an patch object                              */      

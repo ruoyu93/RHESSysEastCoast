@@ -493,7 +493,7 @@ void add_headers(struct world_output_file_object *world_output_files,
 	/*--------------------------------------------------------------*/
 	outfile = world_output_files[0].patch[0].monthly;
 	check = fprintf(outfile,
-        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
+        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
 		"year",
         "month",
 		"patchID",
@@ -508,12 +508,15 @@ void add_headers(struct world_output_file_object *world_output_files,
         "meanLAI",
         "psn",
         "denitrif",
-        "mineralization",//15
+		"nitrif",//15
+		"surfNO3","surfNO3out","surfNO3in","soilNO3","satNO3",//20
+		"satNO3in",
+        "mineralization",
         "uptake",
         "subNO3net",
-        "subNO3vnet",
+        "subNO3vnet",//25
         "subDOCnet",
-        "no3drain2gw",//20
+        "no3drain2gw",
         "satChance",
         "plantlimitN",
         "plantlimitQ");
