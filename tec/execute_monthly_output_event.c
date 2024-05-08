@@ -242,6 +242,16 @@ void	execute_monthly_output_event(
                                     world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.subNO3vnet = 0.0;
                                     world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.subDOCnet = 0.0;
                                     world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.no3drain2gw = 0.0;
+
+									// RZ: include new variables --> reset to 0 after each month (May 7, 2024)
+									world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.surf_NO3 = 0.0;
+									world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.surf_NO3_in = 0.0;
+									world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.surf_NO3_out = 0.0;
+									world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.soil_NO3 = 0.0;
+									world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.sat_NO3 = 0.0;
+									world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.sat_NO3_Qin = 0.0;
+									world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.sat_NO3_Qout = 0.0;
+									world[0].basins[b]->hillslopes[h]->zones[z]->patches[p]->acc_month.nitrif = 0.0;
                                     
                                     
 								} /* end patch (p) for loop */
