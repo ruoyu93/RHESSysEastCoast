@@ -939,14 +939,6 @@ struct patch_object *construct_patch(
 
     //  RZ UPDATED (May 5, 2024)
     //  NO3 balance at monthly scale
-    patch[0].acc_month.surf_NO3 = 0.0;
-    patch[0].acc_month.surf_NO3_in = 0.0;
-    patch[0].acc_month.surf_NO3_out = 0.0;
-    patch[0].acc_month.nitrif = 0.0;
-    patch[0].acc_month.sat_NO3 = 0.0;
-    patch[0].acc_month.sat_NO3_Qin = 0.0;
-    patch[0].acc_month.sat_NO3_Qout = 0.0;
-    patch[0].acc_month.soil_NO3 = 0.0;
 
 
     
