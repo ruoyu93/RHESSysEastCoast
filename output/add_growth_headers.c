@@ -256,7 +256,7 @@ void add_growth_headers(struct world_output_file_object *world_output_files,
 	outfile = world_output_files[0].patch[0].daily;
 	check = fprintf(outfile,
                     //"%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
-                    "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
+                    "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
                     "year", //1
                     "month", //2
                     "day", //3
@@ -282,7 +282,8 @@ void add_growth_headers(struct world_output_file_object *world_output_files,
                     "mineral",//17
                     "psn",//18
                     "plant_resp",//19
-                    "soil_resp",//20
+                    "soil_resp_lit",//20
+					"soil_resp_sol",//20
                     "cFrac",//21
                     "gDayCount",//22
                     "nFactor",//23

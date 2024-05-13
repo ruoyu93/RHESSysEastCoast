@@ -48,6 +48,7 @@ void	output_growth_patch(
 	double alai, aresp, asoilhr;
 	double aleafc, aleafn, afrootc, afrootn, awoodc, awoodn;
 	double atotalN, apredaytN;
+    double asoilhr_soil, asoilhr_litter;  // Added by RZ, May 13, 2024
 
 	struct	canopy_strata_object 	*strata;
 	apsn = 0.0;
@@ -55,7 +56,8 @@ void	output_growth_patch(
 //    aleafc = 0.0;
 //    aleafn = 0.0;
 	aresp = 0.0;
-    asoilhr = 0.0;
+    asoilhr_soil = 0.0;
+    asoilhr_litter = 0.0;
 //    awoodc = 0.0;
 //    awoodn = 0.0;
 //    afrootc = 0.0;
@@ -105,10 +107,12 @@ void	output_growth_patch(
 //                * (strata->ns.frootn + strata->ns.frootn_store
 //                + strata->ns.frootn_transfer);
 
-			asoilhr += (
+			asoilhr_litter += (
 					patch[0].cdf.litr1c_hr + 
 					patch[0].cdf.litr2c_hr + 
-					patch[0].cdf.litr4c_hr + 
+                    patch[0].cdf.litr3c_hr +
+					patch[0].cdf.litr4c_hr);
+            asoilhr_soil += (
 					patch[0].cdf.soil1c_hr + 
 					patch[0].cdf.soil2c_hr + 
 					patch[0].cdf.soil3c_hr + 
@@ -172,7 +176,7 @@ void	output_growth_patch(
 	}//layor
 	check = fprintf(outfile,
                     //"%ld %ld %ld %ld %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
-                    "%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
+                    "%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
                     current_date.year,//1
                     current_date.month,//2
                     current_date.day,//3
@@ -198,7 +202,8 @@ void	output_growth_patch(
                     patch[0].ndf.mineralized*1000.0, //--> gN/m2/d (decomposition mineralization)
                     apsn*1000, // --> plant gross PSN gC/m2
                     aresp*1000,//plant respiration --> gC/m2
-                    asoilhr*1000, // --> gC/m2
+                    asoilhr_litter*1000, // --> gC/m2
+                    asoilhr_soil*1000,            
                     m_cFrac,
                     m_gDayCount,
                     m_nFactor,
