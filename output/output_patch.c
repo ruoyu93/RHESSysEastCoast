@@ -140,7 +140,7 @@ void	output_patch(
     
 
     
-	check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
+	check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
                     
 					current_date.year, current_date.month, current_date.day, //1,2,3,
 					patch[0].ID, //4
@@ -160,14 +160,14 @@ void	output_patch(
                     
                     treeLAI, //17
                     nontreeLAI, //18
-                    patch[0].grassIrrigation_m,
+                    patch[0].grassIrrigation_m, //19
                     
-                    patch[0].rootzone.potential_sat*1000.0,
+                    patch[0].rootzone.potential_sat*1000.0,//20
                     patch[0].field_capacity*1000.0,
                     patch[0].rootzone.field_capacity*1000.0,
                     patch[0].unsat_storage*1000.0,
                     top12cm_storage * 1000.0,
-                    top12cm_potential_sat * 1000.0,
+                    top12cm_potential_sat * 1000.0, //25
                     patch[0].rootzone.depth * 1000.0,
                     patch[0].soil_defaults[0][0].soil_depth * 1000.0,
                     top30cm_storage * 1000.0,
