@@ -2725,8 +2725,8 @@ void		patch_daily_F(
     //totalfc *= (1.0-patch[0].basementFrac); // <---- second thought on this, Oct 8, 2019; basement is 3m at most
     
     if (patch[0].sat_deficit < ZERO) {
-        //patch[0].aboveWT_SatPct = 1.0;
-        //patch[0].rootzone.SatPct = 1.0;
+        patch[0].aboveWT_SatPct = 1.0;
+        patch[0].rootzone.SatPct = 1.0;
         patch[0].rootzone.field_capacity = 0.0;
         patch[0].field_capacity = 0.0;
     } else {
@@ -2762,9 +2762,13 @@ void		patch_daily_F(
 
     
     if(patch[0].rootzone.potential_sat>ZERO){
-        if (patch[0].sat_deficit > patch[0].rootzone.potential_sat) theta = min(patch[0].rz_storage/patch[0].rootzone.potential_sat, 1.0);//(1.0-patch[0].basementFrac)
-        else theta = min((patch[0].rz_storage + patch[0].rootzone.potential_sat - patch[0].sat_deficit)/patch[0].rootzone.potential_sat,1.0);//(1.0-patch[0].basementFrac)
-    }else{ theta = 0.0; }
+        if (patch[0].sat_deficit > patch[0].rootzone.potential_sat) {
+			theta = min(patch[0].rz_storage/patch[0].rootzone.potential_sat, 1.0);}//(1.0-patch[0].basementFrac)
+        else {
+			theta = min((patch[0].rz_storage + patch[0].rootzone.potential_sat - patch[0].sat_deficit)/patch[0].rootzone.potential_sat,1.0);}//(1.0-patch[0].basementFrac)
+    }else{ theta = 0.0;}
+	patch[0].rootzone.SatPct = theta;
+	if(patch[0].sat_deficit<=0){patch[0].rootzone.SatPct = 1;}
     patch[0].theta_std = patch[0].soil_defaults[0][0].active_zone_sat_0z*theta;
     patch[0].theta_std *= patch[0].soil_defaults[0][0].theta_mean_std_p2 * patch[0].theta_std;
     patch[0].theta_std += patch[0].soil_defaults[0][0].theta_mean_std_p1 * (patch[0].soil_defaults[0][0].active_zone_sat_0z*theta);

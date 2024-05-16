@@ -452,7 +452,7 @@ void add_headers(struct world_output_file_object *world_output_files,
 	outfile = world_output_files[0].patch[0].daily;
 		check = fprintf(outfile,
 //                        "%s-%s-%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n" ,
-                        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n", // added 4 extra
+                        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n", // added 4 extra
                         
                         // we are looking for hydrology behavoirs
 						"year", //1
@@ -474,7 +474,7 @@ void add_headers(struct world_output_file_object *world_output_files,
                         "treeLAI",//17
                         "nontreeLAI",//18
                         "SmartIrrigation",
-                        "rtz_totalvol",
+                        "rtz_totalvol",//20
                         "unsat_fc",
                         "rtz_fc",
                         "unsat_storage",
@@ -484,8 +484,9 @@ void add_headers(struct world_output_file_object *world_output_files,
                         "soildepth",
                         "top30cm_storage",
                         "top30cm_potential_sat",
-                        "top60cm_storage",
-                        "top60cm_potential_sat"
+                        "top60cm_storage", //30
+                        "top60cm_potential_sat",
+						"rtzS" //32
 						); 
                         // patch daily
 	/*--------------------------------------------------------------*/
