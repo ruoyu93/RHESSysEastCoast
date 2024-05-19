@@ -1456,6 +1456,7 @@ struct accumulate_patch_object
     double sat_NO3_Qout;
     //double no3diffuse2gw;
     double nitrif;
+    double rtzS;
 };
 /*----------------------------------------------------------*/
 /*      Define an patch object                              */      

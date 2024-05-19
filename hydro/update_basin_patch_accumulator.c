@@ -86,6 +86,10 @@ void update_basin_patch_accumulator(
                     if (patch[0].sat_deficit > patch[0].rootzone.potential_sat) theta = min(patch[0].rz_storage/patch[0].rootzone.potential_sat, 1.0);//(1.0-patch[0].basementFrac)
                     else theta = min((patch[0].rz_storage + patch[0].rootzone.potential_sat - patch[0].sat_deficit)/patch[0].rootzone.potential_sat,1.0);//(1.0-patch[0].basementFrac)
                 }else{ theta = 0.0; }
+
+                if(patch[0].sat_deficit <=0){
+                    theta=1; // saturated
+                }
                 
                 water_scalar0 = min( aa*exp(-cc*exp(-dd*theta*log(bb))*log(bb)), 1.0);
                 water_scalar1 = 0.0;
@@ -156,6 +160,7 @@ void update_basin_patch_accumulator(
                 // --------- ** [end] [RZ]
 
                 patch[0].acc_month.activeS += theta;
+                patch[0].acc_month.rtzS += patch[0].rootzone.SatPct;
                 patch[0].acc_month.denitrifaspQs += water_scalar0;
                 patch[0].acc_month.denitrifspQs += water_scalar1;
                 patch[0].acc_month.denitrif += patch[0].ndf.denitrif;
