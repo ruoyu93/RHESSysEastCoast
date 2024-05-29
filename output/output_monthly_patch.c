@@ -36,7 +36,7 @@ void	output_monthly_patch(
 							 FILE *outfile)
 {
     int check;
-    check = fprintf(outfile,"%d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
+    check = fprintf(outfile,"%d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
     
     current_date.year,
     current_date.month,
@@ -72,7 +72,9 @@ void	output_monthly_patch(
     patch[0].acc_month.no3drain2gw*1000.0,
     patch[0].acc_month.satChance/ patch[0].acc_month.days,
     patch[0].acc_month.plantlimitN/ patch[0].acc_month.days,
-    patch[0].acc_month.plantlimitQ/ patch[0].acc_month.days //30
+    patch[0].acc_month.plantlimitQ/ patch[0].acc_month.days, //30
+    patch[0].acc_month.rtzS/ patch[0].acc_month.days,
+    patch[0].acc_month.activeS/ patch[0].acc_month.days
     );
     
   
