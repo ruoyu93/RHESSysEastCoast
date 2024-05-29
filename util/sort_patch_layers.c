@@ -30,7 +30,7 @@ void sort_patch_layers( struct patch_object *patch)
 	/*--------------------------------------------------------------*/
 	/*  Local function declaration                                  */
 	/*--------------------------------------------------------------*/
-	int key_compare(void *,  void *);
+	int key_compare(const void *,  const void *);
 	void	*alloc( 	size_t, char *, char *);
 	/*--------------------------------------------------------------*/
 	/*  Local variable definition.                                  */
