@@ -1457,6 +1457,10 @@ struct accumulate_patch_object
     //double no3diffuse2gw;
     double nitrif;
     double rtzS;
+
+    double top30cmSat;
+    double top60cmSat;
+    double top100cmSat;
 };
 /*----------------------------------------------------------*/
 /*      Define an patch object                              */      

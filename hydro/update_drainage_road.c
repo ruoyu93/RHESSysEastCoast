@@ -254,7 +254,7 @@ void  update_drainage_road(
 				5, patch) - NO3_leached_to_patch; // <---- here
 			if (NO3_leached_to_stream < 0.0) NO3_leached_to_stream = 0.0;	
 			patch[0].soil_ns.NO3_Qout += (NO3_leached_to_patch + NO3_leached_to_stream); //need to avoid double leaching
-
+			
 			NH4_leached_to_patch = compute_N_leached(
 				verbose_flag,
 				patch[0].sat_NH4, //patch[0].soil_ns.sminn,

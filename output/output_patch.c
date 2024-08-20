@@ -80,6 +80,8 @@ void	output_patch(
     double top30cm_potential_sat = patch[0].soil_defaults[0][0].rtz2sat_def_0z[300];
     double top60cm_storage;
     double top60cm_potential_sat = patch[0].soil_defaults[0][0].rtz2sat_def_0z[600];
+    double top100cm_storage;
+    double top100cm_potential_sat = patch[0].soil_defaults[0][0].rtz2sat_def_0z[1000];
     
     
     if(patch[0].rootzone.potential_sat>0){
@@ -96,6 +98,9 @@ void	output_patch(
             
             top60cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_006r[patch[0].sat_def_pct_index];
             top60cm_storage += (patch[0].rz_storage-patch[0].rootzone.field_capacity) * (1.0 - (1.0-exp(vksat_decay_1*0.60))/(1.0-exp(vksat_decay_1*patch[0].rootzone.depth))); // approximation
+
+            top100cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_010r[patch[0].sat_def_pct_index];
+            top100cm_storage += (patch[0].rz_storage-patch[0].rootzone.field_capacity) * (1.0 - (1.0-exp(vksat_decay_1*1))/(1.0-exp(vksat_decay_1*patch[0].rootzone.depth))); // approximation
             
         }else if(patch[0].rz_storage < patch[0].rootzone.field_capacity){
             //bounded by wilting + (patch[0].rz_storage - wilting) follows ?
@@ -113,12 +118,18 @@ void	output_patch(
             if( patch[0].rz_storage > wilting_mm && patch[0].sat_deficit>0.0){
                 top60cm_storage += (patch[0].rz_storage-wilting_mm) * totalfc * patch[0].soil_defaults[0][0].fc1_006r[patch[0].sat_def_pct_index] / patch[0].rootzone.field_capacity;
             }
+
+            top100cm_storage = patch[0].sat_deficit>0.0? wilting_mm * top100cm_potential_sat/min(patch[0].rootzone.potential_sat,patch[0].sat_deficit) : 0.0;
+            if( patch[0].rz_storage > wilting_mm && patch[0].sat_deficit>0.0){
+                top100cm_storage += (patch[0].rz_storage-wilting_mm) * totalfc * patch[0].soil_defaults[0][0].fc1_010r[patch[0].sat_def_pct_index] / patch[0].rootzone.field_capacity;
+            }
             
         }else{
             // patch[0].rz_storage = patch[0].rootzone.field_capacity
             top12cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_00012r[patch[0].sat_def_pct_index];
             top30cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_003r[patch[0].sat_def_pct_index];
             top60cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_006r[patch[0].sat_def_pct_index];
+            top100cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_010r[patch[0].sat_def_pct_index];
         }
     }else{
         // no root / veg
@@ -131,16 +142,20 @@ void	output_patch(
             
             top60cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_006r[patch[0].sat_def_pct_index];
             top60cm_storage += (patch[0].unsat_storage-patch[0].field_capacity) * (1.0 - (1.0-exp(vksat_decay_1*0.60))/(1.0-exp(vksat_decay_1*patch[0].sat_deficit_z))); // approximation
+
+            top100cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_010r[patch[0].sat_def_pct_index];
+            top100cm_storage += (patch[0].unsat_storage-patch[0].field_capacity) * (1.0 - (1.0-exp(vksat_decay_1*1))/(1.0-exp(vksat_decay_1*patch[0].sat_deficit_z))); // approximation
         }else{
             top12cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_00012r[patch[0].sat_def_pct_index];
             top30cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_003r[patch[0].sat_def_pct_index];
             top60cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_006r[patch[0].sat_def_pct_index];
+            top100cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_010r[patch[0].sat_def_pct_index];
         }
     }//if else
     
 
     
-	check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
+	check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
                     
 					current_date.year, current_date.month, current_date.day, //1,2,3,
 					patch[0].ID, //4
@@ -174,7 +189,11 @@ void	output_patch(
                     top30cm_potential_sat * 1000.0,
                     top60cm_storage * 1000.0,
                     top60cm_potential_sat * 1000.0,
-                    patch[0].rootzone.SatPct
+                    top100cm_storage * 1000.0,
+                    top100cm_potential_sat * 1000.0,
+                    patch[0].rootzone.SatPct,
+                    patch[0].base_flow * 1000.0,
+                    patch[0].return_flow * 1000.0
                     // apsn*1000
                     );
 
