@@ -53,7 +53,7 @@ int update_dissolved_organic_losses(
 				  struct cdayflux_patch_struct *cdf,
 				  struct ndayflux_patch_struct *ndf,
                   struct patch_object *patch,
-                  int soilCNadaptation_falg)
+                  int soilCNadaptation_flag)
 {
 	/*------------------------------------------------------*/
 	/*	Local Function Declarations.						*/
@@ -73,7 +73,7 @@ int update_dissolved_organic_losses(
     if ((cs_litr->litr3c > 0.0) && (ns_litr->litr3n > 0.0))    cn_l3 = cs_litr->litr3c/ns_litr->litr3n; else cn_l3 = 0.0; //CEL_CN;
     if ((cs_litr->litr4c > 0.0) && (ns_litr->litr4n > 0.0))    cn_l4 = cs_litr->litr4c/ns_litr->litr4n; else cn_l4 = 0.0; // LIG_CN;
     
-    if(soilCNadaptation_falg == 1 ){
+    if(soilCNadaptation_flag == 1 ){
         cn_s1 = patch[0].patch_SOIL1_CN;
         cn_s2 = patch[0].patch_SOIL2_CN;
         cn_s3 = patch[0].patch_SOIL3_CN;

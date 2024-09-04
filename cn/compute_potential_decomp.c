@@ -54,7 +54,7 @@ int compute_potential_decomp(double tsoil,
 							 struct ndayflux_patch_struct *ndf,
                              struct patch_object *patch,
                              double soilDecayScalar,
-                             int soilCNadaptation_falg,
+                             int soilCNadaptation_flag,
                              int vegtype)
 {
 	/*------------------------------------------------------*/
@@ -166,7 +166,7 @@ int compute_potential_decomp(double tsoil,
     if( cn_l3 < 5.0 && (cs_litr->litr3c > 1e-10) && (ns_litr->litr3n > 1e-10)) printf("l3CN@%d = %e, %e, %e\n",patch[0].ID,cn_l3, cs_litr->litr3c, ns_litr->litr3n);
     if( cn_l4 < 5.0 && (cs_litr->litr4c > 1e-10) && (ns_litr->litr4n > 1e-10)) printf("l4CN@%d = %e, %e, %e\n",patch[0].ID,cn_l4, cs_litr->litr4c, ns_litr->litr4n);
     
-    if(soilCNadaptation_falg == 1 ){
+    if(soilCNadaptation_flag == 1 ){
         cn_ls1 = patch[0].patch_liter1_soil1_ratio * cn_l1;
         cn_ls2 = patch[0].patch_liter2_soil2_ratio * cn_l2;
         cn_ls3 = patch[0].patch_liter4_soil3_ratio * cn_l4;
@@ -234,13 +234,13 @@ int compute_potential_decomp(double tsoil,
 	/* 1. labile litter to fast microbial recycling pool */
 	if ((cs_litr->litr1c > 0.0) && (ns_litr->litr1n > 0.0)) {
 		plitr1c_loss = kl1 * cs_litr->litr1c;
-        pmnf_l1s1 = plitr1c_loss * (soilCNadaptation_falg==1? (1.0 - rfl1s1 - patch[0].patch_liter1_soil1_ratio)/cn_ls1 : (1.0 - rfl1s1 - (cn_s1/cn_l1))/cn_s1); // check forumla (correct)
+        pmnf_l1s1 = plitr1c_loss * (soilCNadaptation_flag==1? (1.0 - rfl1s1 - patch[0].patch_liter1_soil1_ratio)/cn_ls1 : (1.0 - rfl1s1 - (cn_s1/cn_l1))/cn_s1); // check forumla (correct)
         //pmnf_l1s1 is positive when immobilizing
 	}
 	/* 2. cellulose litter to medium microbial recycling pool */
 	if ((ns_litr->litr2n > 0.0) && (cs_litr->litr2c > 0.0)) {
 		plitr2c_loss = kl2 * cs_litr->litr2c;
-        pmnf_l2s2 = plitr2c_loss * (soilCNadaptation_falg==1? (1.0 - rfl2s2 - patch[0].patch_liter2_soil2_ratio)/cn_ls2 : (1.0 - rfl2s2 - (cn_s2/cn_l2))/cn_s2);
+        pmnf_l2s2 = plitr2c_loss * (soilCNadaptation_flag==1? (1.0 - rfl2s2 - patch[0].patch_liter2_soil2_ratio)/cn_ls2 : (1.0 - rfl2s2 - (cn_s2/cn_l2))/cn_s2);
 	}
 	/* 2b. shield cellulose litter to goes to cellulose litter pool */
 	/* respiration fractions not available to assume the same as for lignan (the "shield") */
@@ -252,7 +252,7 @@ int compute_potential_decomp(double tsoil,
 	/* 3. lignin litter to slow microbial recycling pool */
 	if ((ns_litr->litr4n > 0.0) && (cs_litr->litr4c > 0.0)) {
 		plitr4c_loss = kl4 * cs_litr->litr4c;
-        pmnf_l4s3 = plitr4c_loss * (soilCNadaptation_falg==1? (1.0 - rfl4s3 - patch[0].patch_liter4_soil3_ratio)/cn_ls3 : (1.0 - rfl4s3 - (cn_s3/cn_l4))/cn_s3);
+        pmnf_l4s3 = plitr4c_loss * (soilCNadaptation_flag==1? (1.0 - rfl4s3 - patch[0].patch_liter4_soil3_ratio)/cn_ls3 : (1.0 - rfl4s3 - (cn_s3/cn_l4))/cn_s3);
 	}
 	/* 4. fast microbial recycling pool to medium microbial recycling pool */
 	if ((ns_soil->soil1n > 0.0) && (cs_soil->soil1c > 0.0)) {
@@ -267,7 +267,7 @@ int compute_potential_decomp(double tsoil,
 	/* 6. slow microbial recycling pool to recalcitrant SOM pool */
 	if ((ns_soil->soil3n > 0.0) && (cs_soil->soil3c > 0.0)) {
 		psoil3c_loss = ks3 * cs_soil->soil3c;
-        pmnf_s3s4 = psoil3c_loss * (soilCNadaptation_falg==1? (1.0 - rfs3s4 - cn_ss4/cn_s3)/cn_ss4 : (1.0 - rfs3s4 - (cn_s4/cn_s3))/cn_s4);// try to fix soil4CN for upper 7 test
+        pmnf_s3s4 = psoil3c_loss * (soilCNadaptation_flag==1? (1.0 - rfs3s4 - cn_ss4/cn_s3)/cn_ss4 : (1.0 - rfs3s4 - (cn_s4/cn_s3))/cn_s4);// try to fix soil4CN for upper 7 test
 	}
 	/* 7. mineralization of recalcitrant SOM */
 	if ((ns_soil->soil4n > 0.0) && (cs_soil->soil4c > 0.0)) {

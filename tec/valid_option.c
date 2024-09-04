@@ -97,7 +97,7 @@ int	 valid_option( char *command_line){
         
         (strcmp(command_line,"-fracDirectNdep") == 0) ||
         (strcmp(command_line,"-BGC_flag") == 0) ||
-        (strcmp(command_line,"-soilCNadaptation_falg") == 0) ||
+        (strcmp(command_line,"-soilCNadaptation_flag") == 0) ||
         (strcmp(command_line,"-soilDecayScalar") == 0) ||
         (strcmp(command_line,"-rootNdecayRate") == 0) ||
         (strcmp(command_line,"-soluteLoss2GW") == 0) ||
