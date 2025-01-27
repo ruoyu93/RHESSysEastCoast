@@ -1302,7 +1302,7 @@ void	canopy_stratum_daily_F(
 			zone[0].metv.pa,
 			zone[0].metv.vpd_day,
 			rnet_trans_sunlit,
-			1.0/stratum[0].gs_sunlit,
+			1.0/stratum[0].gplant_sunlit,
 			1.0/stratum[0].ga,
 			2) ;
 		potential_transpiration_rate_sunlit = penman_monteith(
@@ -1328,7 +1328,7 @@ void	canopy_stratum_daily_F(
 			zone[0].metv.pa,
 			zone[0].metv.vpd_day,
 			rnet_trans_shade,
-			1.0/stratum[0].gs_shade,
+			1.0/stratum[0].gplant_shade,
 			1.0/stratum[0].ga,
 			2) ;
 		potential_transpiration_rate_shade = penman_monteith(
