@@ -229,6 +229,11 @@ void	canopy_stratum_daily_F(
 		struct cdayflux_struct *,
         struct canopy_strata_object     *stratum);
 
+    void   compute_xylem_conductance(
+	double,
+	struct epconst_struct,
+	struct canopy_strata_object *);
+	
     void    update_mortality(
          struct epconst_struct,
          struct cstate_struct *,
@@ -1127,9 +1132,18 @@ void	canopy_stratum_daily_F(
         stratum[0].mult_conductance.tmin= 0.0;
         stratum[0].mult_conductance.vpd= 0.0;
     }
+	
+	/*--------------------------------------------------------------*/
+	/*  modify conductance to include xylem limitations		*/
+	/*--------------------------------------------------------------*/
+	compute_xylem_conductance(stratum[0].epv.psi,
+			stratum[0].defaults[0][0].epc,stratum);
 
+	stratum[0].gplant_sunlit =  min(stratum[0].gs_sunlit, stratum[0].gxylem);
+	stratum[0].gplant_shade =  min(stratum[0].gs_shade, stratum[0].gxylem);
 
 	stratum[0].gs = stratum[0].gs_sunlit + stratum[0].gs_shade;
+
 
 	/*--------------------------------------------------------------*/
 	/*	Determine heat flux between stratum and surface.			*/
