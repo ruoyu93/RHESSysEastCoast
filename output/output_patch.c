@@ -49,12 +49,15 @@ void	output_patch(
     double alai = 0.0;
     double treeLAI = 0.0;
     double nontreeLAI = 0.0;
+    double psi = 0.0;
     double theta, thetaRTZ;
 	for ( layer=0 ; layer<patch[0].num_layers; layer++ ){
 		for ( c=0 ; c<patch[0].layers[layer].count; c++ ){
             
             coverf = patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].cover_fraction;
 			alai += coverf * patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].epv.proj_lai;
+
+            psi += coverf * patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].epv.psi;
             
             if(patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].defaults[0][0].epc.veg_type == TREE && patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].defaults[0][0].ID!=802){
                 treeLAI += coverf * patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].epv.proj_lai;
@@ -155,7 +158,7 @@ void	output_patch(
     
 
     
-check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
+check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
                     
 					current_date.year, current_date.month, current_date.day, //1,2,3,
 					patch[0].ID, //4
@@ -174,20 +177,21 @@ check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf
                         
                     (patch[0].transpiration_sat_zone + patch[0].transpiration_unsat_zone + patch[0].evaporation + patch[0].evaporation_surf  + patch[0].exfiltration_sat_zone + patch[0].exfiltration_unsat_zone)*1000.0, //16 ET mm
                     
-                    treeLAI, //17
-                    nontreeLAI, //18
+                    treeLAI, //18
+                    nontreeLAI, //19
+                    psi, //20
                     patch[0].grassIrrigation_m,
 
                     thetaRTZ * patch[0].soil_defaults[0][0].rtz2sat_def_0z[patch[0].rtz2_index],
 		            theta * patch[0].soil_defaults[0][0].active_zone_sat_0z,
                     
                     patch[0].rootzone.potential_sat*1000.0,
-                    patch[0].field_capacity*1000.0,
+                    patch[0].field_capacity*1000.0, //25
                     patch[0].rootzone.field_capacity*1000.0,
                     patch[0].unsat_storage*1000.0,
                     top12cm_storage * 1000.0,
                     top12cm_potential_sat * 1000.0,
-                    patch[0].rootzone.depth * 1000.0,
+                    patch[0].rootzone.depth * 1000.0,//30
                     patch[0].soil_defaults[0][0].soil_depth * 1000.0,
                     top30cm_storage * 1000.0,
                     top30cm_potential_sat * 1000.0,
