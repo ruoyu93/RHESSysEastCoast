@@ -92,6 +92,7 @@ $(OBJ)/compute_unsat_zone_drainage.o \
 $(OBJ)/compute_vapor_pressure_deficit.o \
 $(OBJ)/compute_vapour_conductance.o \
 $(OBJ)/compute_vascular_stratum_conductance.o \
+$(OBJ)/compute_xylem_conductance.o \
 $(OBJ)/compute_year_day.o \
 $(OBJ)/compute_z_final.o \
 $(OBJ)/construct_base_station.o \
@@ -665,6 +666,8 @@ $(OBJ)/compute_nonvascular_stratum_conductance.o: hydro/compute_nonvascular_stra
 	$(CC) -c $(CFLAGS) -I include hydro/compute_nonvascular_stratum_conductance.c -o $(OBJ)/compute_nonvascular_stratum_conductance.o
 $(OBJ)/compute_vascular_stratum_conductance.o: hydro/compute_vascular_stratum_conductance.c
 	$(CC) -c $(CFLAGS) -I include hydro/compute_vascular_stratum_conductance.c -o $(OBJ)/compute_vascular_stratum_conductance.o
+$(OBJ)/compute_xylem_conductance.o: hydro/compute_xylem_conductance.c
+	$(CC) -c $(CFLAGS) -I include hydro/compute_xylem_conductance.c -o $(OBJ)/compute_xylem_conductance.o
 $(OBJ)/compute_vapor_pressure_deficit.o: hydro/compute_vapor_pressure_deficit.c
 	$(CC) -c $(CFLAGS) -I include hydro/compute_vapor_pressure_deficit.c -o $(OBJ)/compute_vapor_pressure_deficit.o
 $(OBJ)/compute_vapour_conductance.o: hydro/compute_vapour_conductance.c
