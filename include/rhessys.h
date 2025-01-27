@@ -2758,6 +2758,9 @@ struct  canopy_strata_object
         double  potential_gs_shade;                                     /* m/s          */
         double  gs_sunlit;                                      /* m/s          */
         double  gs_shade;                                       /* m/s          */
+        double  gxylem;                                         /* m/s          */
+        double  gplant_sunlit;
+        double  gplant_shade;
         double  gsurf;                                          /* m/s          */
         double  Kstar_direct;                                   /* Kj/(m2*day)  */
         double  Kstar_diffuse;                                  /* Kj/(m2*day)  */
