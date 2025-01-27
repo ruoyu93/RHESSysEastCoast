@@ -138,6 +138,21 @@ struct stratum_default *construct_stratum_defaults(
 		default_object_list[i].min_heat_capacity = 	getDoubleParam(&paramCnt, &paramPtr, "min_heat_capacity", "%lf", 0.0, 1);
 		default_object_list[i].max_heat_capacity = 	getDoubleParam(&paramCnt, &paramPtr, "max_heat_capacity", "%lf", 0.0, 1);
 		default_object_list[i].epc.allocation_flag = 	parse_alloc_flag(getStrParam(&paramCnt, &paramPtr, "epc.allocation_flag", "%s", "constant", 1));
+
+                /*--------------------------------------------------------------*/
+		/* xylem conductance parms						*/
+		/*--------------------------------------------------------------*/
+
+		default_object_list[i].epc.gxylem_min_gs =	getDoubleParam(&paramCnt, &paramPtr, "epc.gxylem_min_gs", "%lf", 
+								default_object_list[i].epc.gl_c*10, 1);
+		default_object_list[i].epc.gxylem_max =	getDoubleParam(&paramCnt, &paramPtr, "epc.gxylem_max", "%lf", 
+								default_object_list[i].epc.gl_smax, 1);
+		default_object_list[i].epc.LWP_gxylem_min =	getDoubleParam(&paramCnt, &paramPtr, "epc.LWP_gxylem_min", "%lf", -9999.0, 1);
+		default_object_list[i].epc.gxylem_recovery_rate = getDoubleParam(&paramCnt, &paramPtr, "epc.gxylem_recovery_rate", "%lf", 
+					default_object_list[i].epc.gxylem_max*0.1, 1);
+
+		default_object_list[i].epc.gxylem_csat =	getDoubleParam(&paramCnt, &paramPtr, "epc.gxylem_csat", "%lf", 4.08, 1);
+		default_object_list[i].epc.gxylem_bsat =	getDoubleParam(&paramCnt, &paramPtr, "epc.gxylem_bsat", "%lf", -3.47, 1);
         
         default_object_list[i].liter1_soil1_ratio = getDoubleParam(&paramCnt, &paramPtr, "liter1_soil1_ratio", "%lf", 0.58, 1); //0.57
         if(default_object_list[i].liter1_soil1_ratio <= 0 || default_object_list[i].liter1_soil1_ratio > 0.6){ printf("liter1_soil1_ratio has to be positive and less than 0.6"); default_object_list[i].liter1_soil1_ratio=0.6; }
