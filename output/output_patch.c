@@ -49,6 +49,7 @@ void	output_patch(
     double alai = 0.0;
     double treeLAI = 0.0;
     double nontreeLAI = 0.0;
+    double theta, thetaRTZ;
 	for ( layer=0 ; layer<patch[0].num_layers; layer++ ){
 		for ( c=0 ; c<patch[0].layers[layer].count; c++ ){
             
@@ -64,6 +65,22 @@ void	output_patch(
             
         }// for c
 	}//for layer
+
+    if(patch[0].rootzone.potential_sat>ZERO){
+                    // we assume activez <= rtz
+        if (patch[0].sat_deficit > patch[0].rootzone.potential_sat) thetaRTZ = min(patch[0].rz_storage/patch[0].rootzone.potential_sat, 1.0);
+        else thetaRTZ = min((patch[0].rz_storage + patch[0].rootzone.potential_sat - patch[0].sat_deficit)/patch[0].rootzone.potential_sat,1.0);
+    }else{ thetaRTZ = 0.0; }
+                
+        // activez theta
+    if( patch[0].soil_defaults[0][0].active_zone_z > patch[0].sat_deficit_z){
+          theta = (patch[0].rz_storage + patch[0].unsat_storage + patch[0].soil_defaults[0][0].active_zone_sat_0z - patch[0].sat_deficit) * patch[0].soil_defaults[0][0].active_zone_sat_0z_1;
+                    
+    }else if(patch[0].soil_defaults[0][0].active_zone_z > patch[0].rootzone.depth){
+        theta = (patch[0].rz_storage+patch[0].unsat_storage) / patch[0].sat_deficit; // approximate
+    }else{
+        theta = patch[0].rz_storage/patch[0].rootzone.potential_sat;
+    }
     
     double wilting = exp(-1.0*log(-100.0*patch[0].psi_max_veg/patch[0].soil_defaults[0][0].psi_air_entry) * patch[0].soil_defaults[0][0].pore_size_index);
     double wilting_mm = min(patch[0].rootzone.potential_sat,patch[0].sat_deficit) * wilting;
@@ -138,7 +155,7 @@ void	output_patch(
     
 
     
-	check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
+check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
                     
 					current_date.year, current_date.month, current_date.day, //1,2,3,
 					patch[0].ID, //4
@@ -153,12 +170,16 @@ void	output_patch(
                     patch[0].sat_deficit_z*1000.0,//13 wtz
                     patch[0].sat_deficit*1000.0, //14 total subS -> sat_def
                     patch[0].rz_storage*1000.0, //15 rtS -> rtz storage
+                    patch[0].sewerdrained*1000.0, //16 sewer_drain (mm)
                         
                     (patch[0].transpiration_sat_zone + patch[0].transpiration_unsat_zone + patch[0].evaporation + patch[0].evaporation_surf  + patch[0].exfiltration_sat_zone + patch[0].exfiltration_unsat_zone)*1000.0, //16 ET mm
                     
                     treeLAI, //17
                     nontreeLAI, //18
                     patch[0].grassIrrigation_m,
+
+                    thetaRTZ * patch[0].soil_defaults[0][0].rtz2sat_def_0z[patch[0].rtz2_index],
+		            theta * patch[0].soil_defaults[0][0].active_zone_sat_0z,
                     
                     patch[0].rootzone.potential_sat*1000.0,
                     patch[0].field_capacity*1000.0,
