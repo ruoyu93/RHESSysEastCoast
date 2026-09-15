@@ -84,14 +84,20 @@ void	basin_daily_F(
 	void	update_hillslope_accumulator(
 		struct command_line_object *command_line,
 		struct basin_object *basin);
+
+	double	compute_basin_storage(struct basin_object *);
+	double	compute_basin_gw_storage(struct basin_object *);
+	void	compute_basin_wbal_fluxes(struct basin_object *, double *, double *);
 	/*--------------------------------------------------------------*/
 	/*  Local variable definition.                                  */
 	/*--------------------------------------------------------------*/
 	int	h, z, p,inx;
 	double	scale;
+	double	wbal_start_storage, wbal_start_gw;
+	double	wbal_end_storage, wbal_end_gw, wbal_input, wbal_output;
 	struct	hillslope_object *hillslope;
 	struct	zone_object *zone;
-	struct	patch_object *patch; 
+	struct	patch_object *patch;
 	struct	dated_sequence	clim_event;
 
 	/*--------------------------------------------------------------*/
@@ -101,6 +107,24 @@ void	basin_daily_F(
 	basin[0].snowpack.surface_age = 0.0;
 	basin[0].snowpack.energy_deficit = 0.0;
 	basin[0].snowpack.T = 0.0;
+
+	/*--------------------------------------------------------------*/
+	/*	basin[0].water_balance (full-day check) only makes sense for	*/
+	/*	the explicit daily-routing configuration: it relies on a	*/
+	/*	single start-of-day/end-of-day snapshot bounding "one day",	*/
+	/*	which isn't true under hourly rain (physics already ran	*/
+	/*	across today's hours via world_hourly()/basin_hourly() before	*/
+	/*	this function is even called), and basin_outflow is never	*/
+	/*	populated at all under routing_flag==0 (TOPMODEL).		*/
+	/*--------------------------------------------------------------*/
+	hillslope = basin[0].hillslopes[0];
+	zone = hillslope[0].zones[0];
+
+	if (command_line[0].routing_flag == 1 && zone[0].hourly_rain_flag == 0) {
+		wbal_start_storage = compute_basin_storage(basin);
+		wbal_start_gw = compute_basin_gw_storage(basin);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	Simulate the hillslopes in this basin for the whole day		*/
 	/*--------------------------------------------------------------*/
@@ -110,13 +134,11 @@ void	basin_daily_F(
 			world,
 			basin,
 			basin[0].hillslopes[h],
-			command_line, 
+			command_line,
 			event,
 			current_date );
 	}
 
-        hillslope = basin[0].hillslopes[0];
-	zone = hillslope[0].zones[0];
 	basin[0].snowpack.surface_age /=  basin[0].area_withsnow;
 	basin[0].snowpack.T /=  basin[0].area_withsnow;
 	basin[0].snowpack.energy_deficit /=  basin[0].area_withsnow;
@@ -142,6 +164,24 @@ void	basin_daily_F(
 			basin[0].stream_list.stream_network,
 			basin[0].stream_list.num_reaches,
                         current_date);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	full-day, whole-basin water balance check: true day-start	*/
+	/*	storage vs. true day-end storage, reconciled against the	*/
+	/*	day's rain/irrigation/septic inputs, ET/gw_drainage outputs,	*/
+	/*	the hillslope groundwater store, and basin outflow.		*/
+	/*--------------------------------------------------------------*/
+	if (command_line[0].routing_flag == 1 && zone[0].hourly_rain_flag == 0) {
+		wbal_end_storage = compute_basin_storage(basin);
+		wbal_end_gw = compute_basin_gw_storage(basin);
+		compute_basin_wbal_fluxes(basin, &wbal_input, &wbal_output);
+		basin[0].water_balance = wbal_input - wbal_output
+				- (wbal_end_storage - wbal_start_storage)
+				- (wbal_end_gw - wbal_start_gw)
+				- basin[0].basin_outflow;
+	} else {
+		basin[0].water_balance = 0.0; /* not computed in this routing configuration */
 	}
 
 	/*--------------------------------------------------------------*/

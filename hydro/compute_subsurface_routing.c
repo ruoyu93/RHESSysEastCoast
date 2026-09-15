@@ -79,7 +79,7 @@ void compute_subsurface_routing(struct command_line_object *command_line,
 	double theta, m, Ksat, Nout;
 	double NO3_out, NH4_out, DON_out, DOC_out;
 	double return_flow;
-	double water_balance, infiltration;
+	double infiltration;
 	double innundation_depth;
 	double basin_outflow;
 	double basin_rz_storage;
@@ -1060,42 +1060,44 @@ void compute_subsurface_routing(struct command_line_object *command_line,
         
         
         
-//        /* ******************************** this is done by each hour*/
-//        patch[0].hourly_stream_flow += patch[0].hourly_subsur2stream_flow
-//                      + patch[0].hourly_sur2stream_flow;
-//
-//        basin[0].basin_return_flow += (patch[0].return_flow) * patch[0].area;
-//        /*--------------------------------------------------------------*/
-//        /* final stream flow calculations                */
-//        /*--------------------------------------------------------------*/
-//
-//        basin[0].basin_outflow += (patch[0].streamflow) * patch[0].area;
-//        basin[0].basin_unsat_storage += patch[0].unsat_storage * patch[0].area;
-//        basin[0].basin_sat_deficit += patch[0].sat_deficit * patch[0].area;
-//        basin[0].basin_rz_storage += patch[0].rz_storage * patch[0].area;
-//        basin[0].basin_detention_store += patch[0].detention_store
-//                * patch[0].area;
+        basin[0].basin_return_flow += (patch[0].return_flow) * patch[0].area;
+        /*--------------------------------------------------------------*/
+        /* final stream flow calculations                */
+        /*--------------------------------------------------------------*/
 
-        
-        
+        basin[0].basin_outflow += (patch[0].streamflow) * patch[0].area;
+        basin[0].basin_unsat_storage += patch[0].unsat_storage * patch[0].area;
+        basin[0].basin_sat_deficit += patch[0].sat_deficit * patch[0].area;
+        basin[0].basin_rz_storage += patch[0].rz_storage * patch[0].area;
+        basin[0].basin_detention_store += patch[0].detention_store
+                * patch[0].area;
+
+		/* snapshot this patch's now-final (post infiltration/drainage/lateral
+		   routing) storages, for use as "yesterday" reference in tomorrow's
+		   patch_daily_F() water_balance calc */
+		patch[0].preday_rz_storage = patch[0].rz_storage;
+		patch[0].preday_unsat_storage = patch[0].unsat_storage;
+		patch[0].preday_detention_store = patch[0].detention_store;
+		patch[0].preday_snowpack = patch[0].snowpack.water_depth
+				+ patch[0].snowpack.water_equivalent_depth;
 
     }// for loop i for patches
-    
-//    basin[0].basin_outflow /= basin_area;
-//    basin[0].preday_basin_rz_storage /= basin_area;
-//    basin[0].preday_basin_unsat_storage /= basin_area;
-//    basin[0].preday_basin_detention_store /= basin_area;
-//    basin[0].preday_basin_sat_deficit /= basin_area;
-//    basin[0].basin_rz_storage /= basin_area;
-//    basin[0].basin_unsat_storage /= basin_area;
-//    basin[0].basin_detention_store /= basin_area;
-//    basin[0].basin_sat_deficit /= basin_area;
-//    water_balance = basin[0].preday_basin_rz_storage + basin[0].preday_basin_unsat_storage
-//            + basin[0].preday_basin_detention_store - basin[0].preday_basin_sat_deficit
-//            - (basin[0].basin_rz_storage + basin[0].basin_unsat_storage + basin[0].basin_detention_store
-//                    - basin[0].basin_sat_deficit) - basin[0].basin_outflow;
 
-    
+    /* diagnostic-only normalization of the accumulators above (area-weighted
+       mean depths, meters); basin[0].water_balance itself is computed once
+       per day in basin_daily_F(), not here, so it can include rain/ET/
+       irrigation/septic and the hillslope groundwater store alongside these
+       routing-step storages. basin[0].basin_outflow is reused there. */
+    basin[0].basin_outflow /= basin[0].basin_area;
+    basin[0].preday_basin_rz_storage /= basin[0].basin_area;
+    basin[0].preday_basin_unsat_storage /= basin[0].basin_area;
+    basin[0].preday_basin_detention_store /= basin[0].basin_area;
+    basin[0].preday_basin_sat_deficit /= basin[0].basin_area;
+    basin[0].basin_rz_storage /= basin[0].basin_area;
+    basin[0].basin_unsat_storage /= basin[0].basin_area;
+    basin[0].basin_detention_store /= basin[0].basin_area;
+    basin[0].basin_sat_deficit /= basin[0].basin_area;
+
 	return;
 
 } /*end compute_subsurface_routing.c*/

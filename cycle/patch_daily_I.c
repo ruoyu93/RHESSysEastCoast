@@ -461,6 +461,8 @@ void		patch_daily_I(
 	grazing_mean_nc = 0.0;
 	cnt = 0;
     vegtype=0;
+	patch[0].preday_rain_stored = 0.0;
+	patch[0].preday_snow_stored = 0.0;
 	for ( layer=0 ; layer<patch[0].num_layers; layer++ ){
 		/*--------------------------------------------------------------*/
 		/*	Cycle through the canopy strata				*/

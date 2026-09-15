@@ -161,7 +161,7 @@ void add_headers(struct world_output_file_object *world_output_files,
 	/*--------------------------------------------------------------*/
     ///<<<---------- here basin daily
 	outfile = world_output_files[0].basin[0].daily;
-	fprintf(outfile,"%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n" , // added 3 extra
+	fprintf(outfile,"%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n" , // 106 columns; last is water_balance
 		"day",
 		"month",
 		"year",
@@ -243,7 +243,8 @@ void add_headers(struct world_output_file_object *world_output_files,
         "PAR",
         "unsat_cap",
         "unsat_fc",
-        "rtz_fc"); // basin daily
+        "rtz_fc",
+        "water_balance"); // basin daily
 
 	/*--------------------------------------------------------------*/
 	/*	Monthly							*/
@@ -452,7 +453,7 @@ void add_headers(struct world_output_file_object *world_output_files,
 	outfile = world_output_files[0].patch[0].daily;
 		check = fprintf(outfile,
 //                        "%s-%s-%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n" ,
-                        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n", // added 4 extra
+                        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n", // 37 columns
                         
                         // we are looking for hydrology behavoirs
 						"year", //1
@@ -488,8 +489,11 @@ void add_headers(struct world_output_file_object *world_output_files,
                         "top60cm_potential_sat",
 						"top100cm_storage", //30
                         "top100cm_potential_sat",
-						"rtzS" //32
-						); 
+						"rtzS", //34
+						"baseflow", //35
+						"returnflow", //36
+						"water_balance" //37
+						);
                         // patch daily
 	/*--------------------------------------------------------------*/
 	/*	Monthly							*/

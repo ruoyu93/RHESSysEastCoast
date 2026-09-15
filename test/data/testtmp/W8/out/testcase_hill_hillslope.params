@@ -1,0 +1,8 @@
+1.000000 hillslope_default_ID
+1.000000 gw_loss_coeff
+24.000000 n_routing_timesteps
+0.000000 gw_loss_coeff_decay
+0.000000 gw_soluteConc_decay
+5.000000 gw_storage_capacity
+-1.000000 gw_loss_fast_threshold
+3.000000 gw_loss_fast_coeff

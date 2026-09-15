@@ -1,0 +1,15 @@
+/users/jchoate/work/rhessys_git.r2/rhessys/rhessys5.16.r2 -t ../tecfiles/tec.testcase -w ../worldfiles/world.w8.testcase  -r ../flowtables/flow.w8  -st 2003 10 1 1 -ed 2007 10 1 1 -pre ../out/w8.testcase   -s 0.812 58.038 -sv 0.812 58.038 -gw 0.042 0.716 -g -b
+rm ../out/*hourly
+rm ../out/*monthly
+rm ../out/*yearly
+#mkdir ../out/ParsUsed
+#mv ../out/*.params ../out/ParsUsed
+
+#pr -F ../out/*params > ../out/ParsUsed/params
+#rm ../out/*params
+
+
+#ls ../out/indef*params > ../out/indef.params
+
+#awk 'FNR==1{print ""}{print}' ../out/*.params > ../out/parameters
+

@@ -83,6 +83,7 @@ $(OBJ)/compute_soil_water_potential.o \
 $(OBJ)/compute_stability_correction.o \
 $(OBJ)/compute_subsurface_routing.o \
 $(OBJ)/compute_subsurface_routing_hourly.o \
+$(OBJ)/compute_basin_water_balance.o \
 $(OBJ)/compute_stream_routing.o \
 $(OBJ)/compute_surface_heat_flux.o \
 $(OBJ)/compute_subsurface_temperature_profile.o \
@@ -679,6 +680,8 @@ $(OBJ)/compute_subsurface_routing.o: hydro/compute_subsurface_routing.c
 	$(CC) -c $(CFLAGS) -I include hydro/compute_subsurface_routing.c -o $(OBJ)/compute_subsurface_routing.o
 $(OBJ)/compute_subsurface_routing_hourly.o: hydro/compute_subsurface_routing_hourly.c
 	$(CC) -c $(CFLAGS) -I include hydro/compute_subsurface_routing_hourly.c -o $(OBJ)/compute_subsurface_routing_hourly.o
+$(OBJ)/compute_basin_water_balance.o: hydro/compute_basin_water_balance.c
+	$(CC) -c $(CFLAGS) -I include hydro/compute_basin_water_balance.c -o $(OBJ)/compute_basin_water_balance.o
 $(OBJ)/compute_potential_exfiltration.o: hydro/compute_potential_exfiltration.c
 	$(CC) -c $(CFLAGS) -I include hydro/compute_potential_exfiltration.c -o $(OBJ)/compute_potential_exfiltration.o
 $(OBJ)/Ksat_z_curve.o: cn/Ksat_z_curve.c

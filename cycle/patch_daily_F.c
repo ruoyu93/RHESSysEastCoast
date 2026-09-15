@@ -2984,33 +2984,51 @@ void		patch_daily_F(
 		+ patch[0].cdf.soil4c_hr);
 
 	if (command_line[0].snow_scale_flag == 1)
-	  patch[0].water_balance = zone[0].rain + zone[0].snow*patch[0].snow_redist_scale 
+	  patch[0].water_balance = zone[0].rain + zone[0].snow*patch[0].snow_redist_scale
 		+ patch[0].preday_detention_store +
-		+ irrigation 
+		+ irrigation
 		+ patch[0].landuse_defaults[0][0].septic_water_load/patch[0].area
 		+ zone[0].rain_hourly_total - ( patch[0].gw_drainage
 		+ patch[0].transpiration_sat_zone + patch[0].transpiration_unsat_zone
-		+ patch[0].evaporation + patch[0].evaporation_surf 
+		+ patch[0].evaporation + patch[0].evaporation_surf
 		+ patch[0].exfiltration_unsat_zone + patch[0].exfiltration_sat_zone)
-		- (patch[0].rz_storage - patch[0].preday_rz_storage)		
+		- (patch[0].rz_storage - patch[0].preday_rz_storage)
 		- (patch[0].unsat_storage - patch[0].preday_unsat_storage)
 		- (patch[0].preday_sat_deficit - patch[0].sat_deficit)
 		- patch[0].delta_snowpack - patch[0].delta_rain_stored
 		- patch[0].delta_snow_stored - patch[0].detention_store;
-	else	
-	  patch[0].water_balance = zone[0].rain + zone[0].snow 
+	else
+	  patch[0].water_balance = zone[0].rain + zone[0].snow
 		+ patch[0].preday_detention_store +
-		+ irrigation 
+		+ irrigation
 		+ patch[0].landuse_defaults[0][0].septic_water_load/patch[0].area
 		+ zone[0].rain_hourly_total - ( patch[0].gw_drainage
 		+ patch[0].transpiration_sat_zone + patch[0].transpiration_unsat_zone
-		+ patch[0].evaporation + patch[0].evaporation_surf 
+		+ patch[0].evaporation + patch[0].evaporation_surf
 		+ patch[0].exfiltration_unsat_zone + patch[0].exfiltration_sat_zone)
-		- (patch[0].rz_storage - patch[0].preday_rz_storage)			
+		- (patch[0].rz_storage - patch[0].preday_rz_storage)
 		- (patch[0].unsat_storage - patch[0].preday_unsat_storage)
 		- (patch[0].preday_sat_deficit - patch[0].sat_deficit)
 		- patch[0].delta_snowpack - patch[0].delta_rain_stored
 		- patch[0].delta_snow_stored - patch[0].detention_store;
+
+	/* same input/output terms as water_balance above, but kept unnetted (no
+	   preday_* or storage terms) so a basin-scale water balance can sum true
+	   external inputs and true ET/drainage outputs separately from Δstorage */
+	if (command_line[0].snow_scale_flag == 1)
+		patch[0].wbal_input = zone[0].rain + zone[0].snow*patch[0].snow_redist_scale
+			+ irrigation
+			+ patch[0].landuse_defaults[0][0].septic_water_load/patch[0].area
+			+ zone[0].rain_hourly_total;
+	else
+		patch[0].wbal_input = zone[0].rain + zone[0].snow
+			+ irrigation
+			+ patch[0].landuse_defaults[0][0].septic_water_load/patch[0].area
+			+ zone[0].rain_hourly_total;
+	patch[0].wbal_output = patch[0].gw_drainage
+			+ patch[0].transpiration_sat_zone + patch[0].transpiration_unsat_zone
+			+ patch[0].evaporation + patch[0].evaporation_surf
+			+ patch[0].exfiltration_unsat_zone + patch[0].exfiltration_sat_zone;
 
 	/*
 	if ((patch[0].water_balance > 0.00000001)||

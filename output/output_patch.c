@@ -155,7 +155,7 @@ void	output_patch(
     
 
     
-	check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
+	check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
                     
 					current_date.year, current_date.month, current_date.day, //1,2,3,
 					patch[0].ID, //4
@@ -193,7 +193,8 @@ void	output_patch(
                     top100cm_potential_sat * 1000.0,
                     patch[0].rootzone.SatPct,
                     patch[0].base_flow * 1000.0,
-                    patch[0].return_flow * 1000.0
+                    patch[0].return_flow * 1000.0,
+                    patch[0].water_balance * 1000.0 //37 mm, should be ~0 if conserved
                     // apsn*1000
                     );
 

@@ -375,6 +375,7 @@ struct basin_object
         double preday_sat_deficit;
         double preday_basin_return_flow;
         double preday_basin_detention_store;
+        double water_balance; /* basin-scale daily closure check, meters water; only populated when routing_flag==1 && !hourly_rain_flag */
         /*                                              */
         
         struct  base_station_object     **base_stations;
@@ -1742,8 +1743,10 @@ struct patch_object
 /*----------------------------------------------------------*/
 /*      Surface Hydrology  stuff                        */
 /*----------------------------------------------------------*/
-        int     drainage_type;                          /* unitless 1 stream, 0 land, 2, road */        
+        int     drainage_type;                          /* unitless 1 stream, 0 land, 2, road */
         double  water_balance;                          /* meters water         */
+        double  wbal_input;                             /* meters water; rain+snow+irrigation+septic for this day, set in patch_daily_F(), used by basin-scale water balance */
+        double  wbal_output;                             /* meters water; ET+gw_drainage for this day, set in patch_daily_F(), used by basin-scale water balance */
         double  delta_snowpack;                         /* meters               */
         double  delta_canopy_storage;                   /* meters water         */
         double  deltaS;                                 /* meters water         */

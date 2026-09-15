@@ -209,7 +209,15 @@ struct patch_object *construct_patch(
     patch[0].snowpack.T = getDoubleWorldfile(&paramCnt,&paramPtr,"snowpack.T","%lf",-10.0,1); //20
     patch[0].snowpack.surface_age = getDoubleWorldfile(&paramCnt,&paramPtr,"snowpack.surface_age","%lf",0.0,1); //21 (double)
     patch[0].snowpack.energy_deficit = getDoubleWorldfile(&paramCnt,&paramPtr,"snowpack.energy_deficit","%lf",-0.5,1); //22
-    
+
+    /* fallback "yesterday" snapshot so patch_daily_F()'s water_balance is a real
+       value (not malloc garbage) on day 1, before the first routing call runs */
+    patch[0].preday_rz_storage = patch[0].rz_storage;
+    patch[0].preday_unsat_storage = patch[0].unsat_storage;
+    patch[0].preday_detention_store = patch[0].detention_store;
+    patch[0].preday_snowpack = patch[0].snowpack.water_depth
+            + patch[0].snowpack.water_equivalent_depth;
+
 //	fscanf(world_file,"%lf",&(patch[0].rz_storage));
 //	read_record(world_file, record);
 //	fscanf(world_file,"%lf",&(patch[0].unsat_storage));
