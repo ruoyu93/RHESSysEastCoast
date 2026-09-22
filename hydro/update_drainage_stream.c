@@ -538,6 +538,13 @@ void  update_drainage_stream(
             patch[0].base_flow += Qin * streamflowFrac; // take out a proportion of flow as streamflow
             patch[0].hourly_sur2stream_flow += Qin * streamflowFrac;
             Qin *= max(0.0, 1.0 - streamflowFrac);
+            /* Audit the exact volume that remains subsurface. Qin is now a
+             * depth over the receiving patch, so multiply by receiver area
+             * before recording equal donor and receiver transfer volumes.
+             * This does not alter the routing calculation.
+             */
+            patch[0].water_dl_stream_subsurface_out_m3 += Qin * neigh[0].area;
+            neigh[0].water_dl_from_stream_subsurface_m3 += Qin * neigh[0].area;
             neigh[0].Qin += Qin; // subsurface --> neighbour sat_def
             if(patch[0].aggregate_ID != neigh[0].aggregate_ID && patch[0].aggregate_ID>0 && patch[0].aggregate_ID % 11 ==0){neigh[0].fromLAND_Q+=Qin; }
             if(patch[0].aggregate_ID != neigh[0].aggregate_ID && patch[0].aggregate_ID>0 && patch[0].aggregate_ID % 7 ==0){neigh[0].fromRIPARIAN_Q+=Qin; }
@@ -596,4 +603,3 @@ void  update_drainage_stream(
     
     
 } /*end update_drainage_stream.c*/
-

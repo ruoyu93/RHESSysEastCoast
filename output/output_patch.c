@@ -43,160 +43,92 @@ void	output_patch(
 	/*------------------------------------------------------*/
 	/*	Local Variable Definition. 							*/
 	/*------------------------------------------------------*/
-	int check, c, layer;
-    
-    double coverf;
-    double alai = 0.0;
-    double treeLAI = 0.0;
-    double nontreeLAI = 0.0;
-    double apsn = 0.0;
-	for ( layer=0 ; layer<patch[0].num_layers; layer++ ){
-		for ( c=0 ; c<patch[0].layers[layer].count; c++ ){
-            
-            coverf = patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].cover_fraction;
-			alai += coverf * patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].epv.proj_lai;
-            apsn += coverf * patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].cs.net_psn;
-            
-            if(patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].defaults[0][0].epc.veg_type == TREE && patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].defaults[0][0].ID!=802){
-                treeLAI += coverf * patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].epv.proj_lai;
-            }//tree
-            if(patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].defaults[0][0].epc.veg_type == GRASS || patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].defaults[0][0].ID==802){
-                nontreeLAI += coverf * patch[0].canopy_strata[(patch[0].layers[layer].strata[c])][0].epv.proj_lai;
-            }//non-tree
-            
-        }// for c
-	}//for layer
-    
-    double wilting = exp(-1.0*log(-100.0*patch[0].psi_max_veg/patch[0].soil_defaults[0][0].psi_air_entry) * patch[0].soil_defaults[0][0].pore_size_index);
-    double wilting_mm = min(patch[0].rootzone.potential_sat,patch[0].sat_deficit) * wilting;
-    double totalfc = patch[0].rootzone.field_capacity + patch[0].field_capacity;
-    double vksat0 = patch[0].soil_defaults[0][0].Ksat_0_v;
-    double vksat_decay = patch[0].soil_defaults[0][0].mz_v;
-    double vksat_decay_1 = -1.0/patch[0].soil_defaults[0][0].mz_v;
-    
-    double top12cm_storage;
-    double top12cm_potential_sat = patch[0].soil_defaults[0][0].rtz2sat_def_0z[120];
-    double top30cm_storage;
-    double top30cm_potential_sat = patch[0].soil_defaults[0][0].rtz2sat_def_0z[300];
-    double top60cm_storage;
-    double top60cm_potential_sat = patch[0].soil_defaults[0][0].rtz2sat_def_0z[600];
-    double top100cm_storage;
-    double top100cm_potential_sat = patch[0].soil_defaults[0][0].rtz2sat_def_0z[1000];
-    
-    
-    if(patch[0].rootzone.potential_sat>0){
-        // plants and root
-        if(patch[0].rz_storage > patch[0].rootzone.field_capacity){
-            // drainage pattern
-            // vksat_decay* vksat0*(1.0-exp(vksat_decay_1*0.12))
-            // vksat_decay* vksat0*(1.0-exp(vksat_decay_1*patch[0].rootzone.depth))
-            top12cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_00012r[patch[0].sat_def_pct_index];
-            top12cm_storage += (patch[0].rz_storage-patch[0].rootzone.field_capacity) * (1.0 - (1.0-exp(vksat_decay_1*0.12))/(1.0-exp(vksat_decay_1*patch[0].rootzone.depth))); // approximation
-            
-            top30cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_003r[patch[0].sat_def_pct_index];
-            top30cm_storage += (patch[0].rz_storage-patch[0].rootzone.field_capacity) * (1.0 - (1.0-exp(vksat_decay_1*0.30))/(1.0-exp(vksat_decay_1*patch[0].rootzone.depth))); // approximation
-            
-            top60cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_006r[patch[0].sat_def_pct_index];
-            top60cm_storage += (patch[0].rz_storage-patch[0].rootzone.field_capacity) * (1.0 - (1.0-exp(vksat_decay_1*0.60))/(1.0-exp(vksat_decay_1*patch[0].rootzone.depth))); // approximation
+	int check;
+	double total_et;
+    double storage_change, water_inputs, water_outputs;
 
-            top100cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_010r[patch[0].sat_def_pct_index];
-            top100cm_storage += (patch[0].rz_storage-patch[0].rootzone.field_capacity) * (1.0 - (1.0-exp(vksat_decay_1*1))/(1.0-exp(vksat_decay_1*patch[0].rootzone.depth))); // approximation
-            
-        }else if(patch[0].rz_storage < patch[0].rootzone.field_capacity){
-            //bounded by wilting + (patch[0].rz_storage - wilting) follows ?
-            top12cm_storage = patch[0].sat_deficit>0.0? wilting_mm * top12cm_potential_sat/min(patch[0].rootzone.potential_sat,patch[0].sat_deficit) : 0.0;
-            if( patch[0].rz_storage > wilting_mm && patch[0].sat_deficit>0.0){
-                top12cm_storage += (patch[0].rz_storage-wilting_mm) * totalfc * patch[0].soil_defaults[0][0].fc1_00012r[patch[0].sat_def_pct_index] / patch[0].rootzone.field_capacity;
-            }
-            
-            top30cm_storage = patch[0].sat_deficit>0.0? wilting_mm * top30cm_potential_sat/min(patch[0].rootzone.potential_sat,patch[0].sat_deficit) : 0.0;
-            if( patch[0].rz_storage > wilting_mm && patch[0].sat_deficit>0.0){
-                top30cm_storage += (patch[0].rz_storage-wilting_mm) * totalfc * patch[0].soil_defaults[0][0].fc1_003r[patch[0].sat_def_pct_index] / patch[0].rootzone.field_capacity;
-            }
-            
-            top60cm_storage = patch[0].sat_deficit>0.0? wilting_mm * top60cm_potential_sat/min(patch[0].rootzone.potential_sat,patch[0].sat_deficit) : 0.0;
-            if( patch[0].rz_storage > wilting_mm && patch[0].sat_deficit>0.0){
-                top60cm_storage += (patch[0].rz_storage-wilting_mm) * totalfc * patch[0].soil_defaults[0][0].fc1_006r[patch[0].sat_def_pct_index] / patch[0].rootzone.field_capacity;
-            }
+	/* One aggregate ET output avoids duplicating its six components. */
+	total_et = patch[0].evaporation + patch[0].evaporation_surf
+		+ patch[0].transpiration_sat_zone + patch[0].transpiration_unsat_zone
+		+ patch[0].exfiltration_sat_zone + patch[0].exfiltration_unsat_zone;
 
-            top100cm_storage = patch[0].sat_deficit>0.0? wilting_mm * top100cm_potential_sat/min(patch[0].rootzone.potential_sat,patch[0].sat_deficit) : 0.0;
-            if( patch[0].rz_storage > wilting_mm && patch[0].sat_deficit>0.0){
-                top100cm_storage += (patch[0].rz_storage-wilting_mm) * totalfc * patch[0].soil_defaults[0][0].fc1_010r[patch[0].sat_def_pct_index] / patch[0].rootzone.field_capacity;
-            }
-            
-        }else{
-            // patch[0].rz_storage = patch[0].rootzone.field_capacity
-            top12cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_00012r[patch[0].sat_def_pct_index];
-            top30cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_003r[patch[0].sat_def_pct_index];
-            top60cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_006r[patch[0].sat_def_pct_index];
-            top100cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_010r[patch[0].sat_def_pct_index];
-        }
-    }else{
-        // no root / veg
-        if(patch[0].unsat_storage > patch[0].field_capacity){
-            top12cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_00012r[patch[0].sat_def_pct_index];
-            top12cm_storage += (patch[0].unsat_storage-patch[0].field_capacity) * (1.0 - (1.0-exp(vksat_decay_1*0.12))/(1.0-exp(vksat_decay_1*patch[0].sat_deficit_z))); // approximation
-            
-            top30cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_003r[patch[0].sat_def_pct_index];
-            top30cm_storage += (patch[0].unsat_storage-patch[0].field_capacity) * (1.0 - (1.0-exp(vksat_decay_1*0.30))/(1.0-exp(vksat_decay_1*patch[0].sat_deficit_z))); // approximation
-            
-            top60cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_006r[patch[0].sat_def_pct_index];
-            top60cm_storage += (patch[0].unsat_storage-patch[0].field_capacity) * (1.0 - (1.0-exp(vksat_decay_1*0.60))/(1.0-exp(vksat_decay_1*patch[0].sat_deficit_z))); // approximation
+    /* scripts/check_patch_satdef_balance.py accounting, using daily initial
+     * snapshots instead of the previous output record. All terms are meters
+     * of water over patch area. Saturated storage is soil_water_cap minus
+     * sat_deficit; the constant soil_water_cap cancels in its change.
+     * Use the dedicated daily deficit: routing overwrites preday_sat_deficit.
+     * At daily output this includes routing; hourly calls are partial-day.
+     */
+    storage_change = (patch[0].rain_stored - patch[0].preday_rain_stored)
+        + (patch[0].snow_stored - patch[0].preday_snow_stored)
+        + (patch[0].snowpack.water_depth
+            + patch[0].snowpack.water_equivalent_depth - patch[0].preday_snowpack)
+        + (patch[0].detention_store - patch[0].preday_detention_store)
+        + (patch[0].rz_storage - patch[0].preday_rz_storage)
+        + (patch[0].unsat_storage - patch[0].preday_unsat_storage)
+        + (patch[0].water_dl_day_start_sat_deficit - patch[0].sat_deficit);
+    water_inputs = zone[0].rain + patch[0].water_dl_snow_input
+        + zone[0].rain_hourly_total + patch[0].water_dl_dated_irrigation
+        + patch[0].grassIrrigation_m + patch[0].septicReleaseQ_m
+        + patch[0].water_dl_gw_to_riparian
+        + patch[0].Qin_total + patch[0].surface_Qin_total;
+    water_outputs = patch[0].water_dl_vertical_gw
+        + patch[0].surface_Qout_total + patch[0].streamflow
+        + patch[0].stormdrained + patch[0].sewerdrained
+        + patch[0].pipedrainYield + total_et
+        + patch[0].water_dl_stream_subsurface_out_m3 / patch[0].area;
+    /* Streamflow includes the stream-converted fraction of stream-patch
+     * subsurface Qout; water continuing to neighbour soil is recorded by
+     * water_dl_stream_subsurface_out_m3 above. routing_to_gw_subset is
+     * already included in routed exports.
+     */
+    if (patch[0].drainage_type != 1)
+        water_outputs += patch[0].Qout_total;
+    patch[0].water_balance = water_inputs - water_outputs - storage_change;
 
-            top100cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_010r[patch[0].sat_def_pct_index];
-            top100cm_storage += (patch[0].unsat_storage-patch[0].field_capacity) * (1.0 - (1.0-exp(vksat_decay_1*1))/(1.0-exp(vksat_decay_1*patch[0].sat_deficit_z))); // approximation
-        }else{
-            top12cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_00012r[patch[0].sat_def_pct_index];
-            top30cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_003r[patch[0].sat_def_pct_index];
-            top60cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_006r[patch[0].sat_def_pct_index];
-            top100cm_storage = totalfc * patch[0].soil_defaults[0][0].fc1_010r[patch[0].sat_def_pct_index];
-        }
-    }//if else
-    
-
-    
-	check = fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
-                    
-					current_date.year, current_date.month, current_date.day, //1,2,3,
-					patch[0].ID, //4
-                    (patch[0].Qout_total - patch[0].Qin_total) * 1000.0, //5
-                    (patch[0].surface_Qout_total - patch[0].surface_Qin_total) * 1000.0, //6
-                    patch[0].detention_store*1000.0, //7
-                    patch[0].stormdrainYield*1000.0, //8
-                    patch[0].overland_flow * 1000.0, //9 <-- locally yielded returnflow (not all made to the stream); not include surface Qin and Qout
-                    patch[0].rain_throughfall*1000.0, //10
-					(patch[0].rain_throughfall - patch[0].recharge)*1000.0,//11
-                    (patch[0].cap_rise - patch[0].unsat_drainage)*1000.0,//12
-                    patch[0].sat_deficit_z*1000.0,//13 wtz
-                    patch[0].sat_deficit*1000.0, //14 total subS -> sat_def
-                    patch[0].rz_storage*1000.0, //15 rtS -> rtz storage
-                        
-                    (patch[0].transpiration_sat_zone + patch[0].transpiration_unsat_zone + patch[0].evaporation + patch[0].evaporation_surf  + patch[0].exfiltration_sat_zone + patch[0].exfiltration_unsat_zone)*1000.0, //16 ET mm
-                    
-                    treeLAI, //17
-                    nontreeLAI, //18
-                    patch[0].grassIrrigation_m, //19
-                    
-                    patch[0].rootzone.potential_sat*1000.0,//20
-                    patch[0].field_capacity*1000.0,
-                    patch[0].rootzone.field_capacity*1000.0,
-                    patch[0].unsat_storage*1000.0,
-                    top12cm_storage * 1000.0,
-                    top12cm_potential_sat * 1000.0, //25
-                    patch[0].rootzone.depth * 1000.0,
-                    patch[0].soil_defaults[0][0].soil_depth * 1000.0,
-                    top30cm_storage * 1000.0,
-                    top30cm_potential_sat * 1000.0,
-                    top60cm_storage * 1000.0,
-                    top60cm_potential_sat * 1000.0,
-                    top100cm_storage * 1000.0,
-                    top100cm_potential_sat * 1000.0,
-                    patch[0].rootzone.SatPct,
-                    patch[0].base_flow * 1000.0,
-                    patch[0].return_flow * 1000.0,
-                    patch[0].water_balance * 1000.0 //37 mm, should be ~0 if conserved
-                    // apsn*1000
-                    );
+	check = fprintf(outfile,
+		"%d %d %d %d %lf %d"
+		" %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf"
+		" %lf %lf %lf %lf %lf %lf %lf %lf %lf"
+		" %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %.6g\n",
+		current_date.year,
+		current_date.month,
+		current_date.day,
+		patch[0].ID,
+		patch[0].area,
+		patch[0].drainage_type,
+		patch[0].soil_defaults[0][0].soil_water_cap * 1000.0,
+		patch[0].rootzone.potential_sat * 1000.0,
+		patch[0].sat_deficit * 1000.0,
+		patch[0].sat_deficit_z * 1000.0,
+		patch[0].rain_stored * 1000.0,
+		patch[0].snow_stored * 1000.0,
+		patch[0].snowpack.water_depth * 1000.0,
+		patch[0].snowpack.water_equivalent_depth * 1000.0,
+		patch[0].detention_store * 1000.0,
+		patch[0].rz_storage * 1000.0,
+		patch[0].unsat_storage * 1000.0,
+		zone[0].rain * 1000.0,
+		patch[0].water_dl_snow_input * 1000.0,
+		zone[0].rain_hourly_total * 1000.0,
+		patch[0].water_dl_dated_irrigation * 1000.0,
+		patch[0].grassIrrigation_m * 1000.0,
+		patch[0].septicReleaseQ_m * 1000.0,
+		patch[0].water_dl_gw_to_riparian * 1000.0,
+		patch[0].water_dl_vertical_gw * 1000.0,
+		patch[0].Qin_total * 1000.0,
+		patch[0].Qout_total * 1000.0,
+		patch[0].water_dl_stream_subsurface_out_m3 / patch[0].area * 1000.0,
+		patch[0].water_dl_from_stream_subsurface_m3 / patch[0].area * 1000.0,
+		patch[0].surface_Qin_total * 1000.0,
+		patch[0].surface_Qout_total * 1000.0,
+		patch[0].streamflow * 1000.0,
+		patch[0].stormdrained * 1000.0,
+		patch[0].sewerdrained * 1000.0,
+		patch[0].pipedrainYield * 1000.0,
+		total_et * 1000.0,
+		patch[0].water_dl_routing_gw_m3 / patch[0].area * 1000.0,
+        patch[0].water_balance * 1000.0); /* meters to millimeters */
 
 	if (check <= 0) {
 		fprintf(stdout, "\nWARNING: output error has occured in output_patch, file");

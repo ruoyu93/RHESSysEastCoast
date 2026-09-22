@@ -197,6 +197,29 @@ void		patch_daily_I(
 	}
 
 
+    /* Beginning-of-day water stores, before initialization can clip storage.
+     * All values are meters of water. Routing owns preday_sat_deficit and
+     * preday_sat_deficit_z, so use a separate daily diagnostic reference.
+     */
+    patch[0].preday_rz_storage = patch[0].rz_storage;
+    patch[0].preday_unsat_storage = patch[0].unsat_storage;
+    patch[0].preday_detention_store = patch[0].detention_store;
+    patch[0].preday_snowpack = patch[0].snowpack.water_depth
+        + patch[0].snowpack.water_equivalent_depth;
+    patch[0].water_dl_day_start_sat_deficit = patch[0].sat_deficit;
+    /* Match rain_stored: litter plus cover-weighted canopy liquid water.
+     * The canopy loop below adds the beginning canopy stores with +=.
+     */
+    patch[0].preday_rain_stored = patch[0].litter.rain_stored;
+    patch[0].preday_snow_stored = 0.0;
+    /* Accumulate the groundwater return added by hillslope_hourly() during
+     * this day. It is an external input at patch scale and an internal
+     * transfer at hillslope and basin scales.
+     */
+    patch[0].water_dl_gw_to_riparian = 0.0;
+    patch[0].water_dl_stream_subsurface_out_m3 = 0.0;
+    patch[0].water_dl_from_stream_subsurface_m3 = 0.0;
+
 	patch[0].precip_with_assim = 0.0;
     
     // -- update sat_def related variables
@@ -461,8 +484,6 @@ void		patch_daily_I(
 	grazing_mean_nc = 0.0;
 	cnt = 0;
     vegtype=0;
-	patch[0].preday_rain_stored = 0.0;
-	patch[0].preday_snow_stored = 0.0;
 	for ( layer=0 ; layer<patch[0].num_layers; layer++ ){
 		/*--------------------------------------------------------------*/
 		/*	Cycle through the canopy strata				*/

@@ -21,6 +21,7 @@
 /*--------------------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "rhessys.h"
 #include "phys_constants.h"
@@ -334,6 +335,9 @@ void	canopy_stratum_daily_F(
 	double dum;
 	double max_snow_albedo_increase, wetfrac;
 	double deltaT;
+	double water_diag_rain_in;
+	double water_diag_old_store;
+	double rain_storage_result;
 
 	struct	psnin_struct	psnin;
 	struct	psnout_struct	psnout;
@@ -1396,10 +1400,72 @@ void	canopy_stratum_daily_F(
 		}
 				   
 		
-	stratum[0].rain_stored  = max(0.0,compute_rain_stored(
+	water_diag_rain_in = rain_throughfall;
+	water_diag_old_store = stratum[0].rain_stored;
+	rain_storage_result = compute_rain_stored(
 		command_line[0].verbose_flag,
 		&(rain_throughfall),
-		stratum));
+		stratum);
+	stratum[0].rain_stored = max(0.0, rain_storage_result);
+	patch[0].water_diag_canopy_input +=
+		water_diag_rain_in * stratum[0].cover_fraction;
+	patch[0].water_diag_canopy_output +=
+		rain_throughfall * stratum[0].cover_fraction;
+	patch[0].water_diag_canopy_old_storage +=
+		water_diag_old_store * stratum[0].cover_fraction;
+	patch[0].water_diag_canopy_new_storage +=
+		stratum[0].rain_stored * stratum[0].cover_fraction;
+	patch[0].water_diag_canopy_evaporation +=
+		stratum[0].evaporation * stratum[0].cover_fraction;
+	patch[0].water_diag_canopy_residual +=
+		(water_diag_rain_in + water_diag_old_store - rain_throughfall
+		 - stratum[0].rain_stored - stratum[0].evaporation)
+		* stratum[0].cover_fraction;
+	{
+		static FILE *water_diag_file = NULL;
+		static int water_diag_disabled = 0;
+		double water_diag_residual =
+			water_diag_rain_in + water_diag_old_store - rain_throughfall
+			- stratum[0].rain_stored - stratum[0].evaporation;
+		if (!water_diag_disabled && water_diag_file == NULL) {
+			const char *water_diag_name = getenv("RHESSYS_CANOPY_WATER_DIAG");
+			if (water_diag_name == NULL || water_diag_name[0] == '\0') {
+				water_diag_disabled = 1;
+			} else {
+				water_diag_file = fopen(water_diag_name, "w");
+				if (water_diag_file == NULL) {
+					fprintf(stderr,
+						"Unable to open canopy water diagnostic %s.\n",
+						water_diag_name);
+					exit(EXIT_FAILURE);
+				}
+				fprintf(water_diag_file,
+					"year,month,day,patch_id,stratum_id,layer_height_m,"
+					"cover_fraction,rain_in_m,old_storage_m,rain_out_m,"
+					"new_storage_m,evaporation_m,residual_m,"
+					"potential_interception_m,throughfall_initial_m,"
+					"storage_capacity_m,overflow_return_m\n");
+			}
+		}
+		if (water_diag_file != NULL &&
+			(fabs(water_diag_residual) > 1.0e-12 ||
+			 water_diag_rain_in > 0.0 || water_diag_old_store > 0.0)) {
+			fprintf(water_diag_file,
+				"%ld,%ld,%ld,%d,%d,%.17g,%.17g,%.17g,%.17g,"
+				"%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,"
+				"%.17g\n",
+				current_date.year, current_date.month, current_date.day,
+				patch[0].ID, stratum[0].ID, layer[0].height,
+				stratum[0].cover_fraction, water_diag_rain_in,
+				water_diag_old_store, rain_throughfall,
+				stratum[0].rain_stored, stratum[0].evaporation,
+				water_diag_residual,
+				stratum[0].water_diag_potential_interception,
+				stratum[0].water_diag_throughfall_initial,
+				stratum[0].water_diag_storage_capacity,
+				stratum[0].water_diag_overflow_return);
+		}
+	}
 
     if(stratum[0].rain_stored<0){
         printf("bad rain_stored (F1): %d,%d,%d, %lf,%lf\n",

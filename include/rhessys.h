@@ -375,7 +375,11 @@ struct basin_object
         double preday_sat_deficit;
         double preday_basin_return_flow;
         double preday_basin_detention_store;
-        double water_balance; /* basin-scale daily closure check, meters water; only populated when routing_flag==1 && !hourly_rain_flag */
+        /*
+         * Diagnostic-only accumulator for stream export produced by
+         * repeated hourly routing calls.
+         */
+        double water_diag_hourly_stream_m3;
         /*                                              */
         
         struct  base_station_object     **base_stations;
@@ -1425,6 +1429,7 @@ struct accumulate_patch_object
     double sat_deficit_z;
     double peakLAI;
     double meanLAI;
+    double meanFrootc; /* sum of daily cover-weighted fine-root C (kgC/m2) */
     double psn;
     double days;
     double satChance;
@@ -1442,26 +1447,7 @@ struct accumulate_patch_object
     double subNO3vnet;
     double subDOCnet;
     double no3drain2gw;
-
-        //  ** ------- RZ UPDATED (May 5, 2024)
-    //  NO3 balance at monthly scale
-    //    1. Surface NO3
-    double surf_NO3;
-    double surf_NO3_in;
-    double surf_NO3_out;
-    //    2. Soil NO3
-    double soil_NO3;    
-    //    3. Saturated zone NO3
-    double sat_NO3; // RZ: (May 3, 2024) Added for show sat zone NO3
-    double sat_NO3_Qin;
-    double sat_NO3_Qout;
     //double no3diffuse2gw;
-    double nitrif;
-    double rtzS;
-
-    double top30cmSat;
-    double top60cmSat;
-    double top100cmSat;
 };
 /*----------------------------------------------------------*/
 /*      Define an patch object                              */      
@@ -1686,6 +1672,12 @@ struct patch_object
         struct  zone_object             *zone; /* parent zone *///<<------------------- not set
         double  grassIrrigation_m;
         double  septicReleaseQ_m;
+        double  water_diag_canopy_input;
+        double  water_diag_canopy_output;
+        double  water_diag_canopy_old_storage;
+        double  water_diag_canopy_new_storage;
+        double  water_diag_canopy_evaporation;
+        double  water_diag_canopy_residual;
         double  sewerdrained; //<------- Spet 28 tracking how much is subsurface sewer drain
             double  sewerdrained_NO3;
             double  sewerdrained_NH4;
@@ -1743,10 +1735,16 @@ struct patch_object
 /*----------------------------------------------------------*/
 /*      Surface Hydrology  stuff                        */
 /*----------------------------------------------------------*/
-        int     drainage_type;                          /* unitless 1 stream, 0 land, 2, road */
+        int     drainage_type;                          /* unitless 1 stream, 0 land, 2, road */        
         double  water_balance;                          /* meters water         */
-        double  wbal_input;                             /* meters water; rain+snow+irrigation+septic for this day, set in patch_daily_F(), used by basin-scale water balance */
-        double  wbal_output;                             /* meters water; ET+gw_drainage for this day, set in patch_daily_F(), used by basin-scale water balance */
+        double  water_dl_dated_irrigation;              /* meters water; diagnostic */
+        double  water_dl_snow_input;                    /* meters water; diagnostic */
+        double  water_dl_vertical_gw;                   /* meters water; diagnostic */
+        double  water_dl_gw_to_riparian;                /* meters water; daily diagnostic input */
+        double  water_dl_day_start_sat_deficit;         /* meters water; daily diagnostic, never routing scratch */
+        double  water_dl_routing_gw_m3;                 /* cubic meters; diagnostic */
+        double  water_dl_stream_subsurface_out_m3;      /* cubic meters; stream-patch donor diagnostic */
+        double  water_dl_from_stream_subsurface_m3;     /* cubic meters; receiving subset already in Qin_total */
         double  delta_snowpack;                         /* meters               */
         double  delta_canopy_storage;                   /* meters water         */
         double  deltaS;                                 /* meters water         */
@@ -2783,6 +2781,10 @@ struct  canopy_strata_object
         double  ppfd_shade;                     /*  (umol/m2/s) PAR photon flux density */
         double  potential_evaporation;                          /*  meters/day  */
         double  rain_stored;                                    /*  meters      */
+        double  water_diag_potential_interception;
+        double  water_diag_throughfall_initial;
+        double  water_diag_storage_capacity;
+        double  water_diag_overflow_return;
         double  snow_stored;                                    /*  meters      */
         double  sublimation;                                    /*  meters      */
         double  surface_heat_flux;                              /*  kJ/day      */
@@ -2890,4 +2892,3 @@ struct surface_energy_default {
         };
 
 #endif
-

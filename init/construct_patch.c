@@ -209,15 +209,7 @@ struct patch_object *construct_patch(
     patch[0].snowpack.T = getDoubleWorldfile(&paramCnt,&paramPtr,"snowpack.T","%lf",-10.0,1); //20
     patch[0].snowpack.surface_age = getDoubleWorldfile(&paramCnt,&paramPtr,"snowpack.surface_age","%lf",0.0,1); //21 (double)
     patch[0].snowpack.energy_deficit = getDoubleWorldfile(&paramCnt,&paramPtr,"snowpack.energy_deficit","%lf",-0.5,1); //22
-
-    /* fallback "yesterday" snapshot so patch_daily_F()'s water_balance is a real
-       value (not malloc garbage) on day 1, before the first routing call runs */
-    patch[0].preday_rz_storage = patch[0].rz_storage;
-    patch[0].preday_unsat_storage = patch[0].unsat_storage;
-    patch[0].preday_detention_store = patch[0].detention_store;
-    patch[0].preday_snowpack = patch[0].snowpack.water_depth
-            + patch[0].snowpack.water_equivalent_depth;
-
+    
 //	fscanf(world_file,"%lf",&(patch[0].rz_storage));
 //	read_record(world_file, record);
 //	fscanf(world_file,"%lf",&(patch[0].unsat_storage));
@@ -933,6 +925,8 @@ struct patch_object *construct_patch(
     patch[0].acc_month.ET = 0.0;
     patch[0].acc_month.sat_deficit_z = 0.0;
     patch[0].acc_month.peakLAI = 0.0;
+    patch[0].acc_month.meanLAI = 0.0;
+    patch[0].acc_month.meanFrootc = 0.0;
     patch[0].acc_month.psn = 0.0;
     patch[0].acc_month.days = 0.0;
     patch[0].acc_month.denitrif = 0.0;
@@ -944,11 +938,6 @@ struct patch_object *construct_patch(
     patch[0].acc_month.satChance = 0.0;
     patch[0].acc_month.plantlimitN = 0.0;
     patch[0].acc_month.plantlimitQ = 0.0;
-
-    //  RZ UPDATED (May 5, 2024)
-    //  NO3 balance at monthly scale
-
-
     
     // annual
     //patch[0].acc_year = (struct accumulate_patch_object *) alloc( 1 * sizeof( struct accumulate_patch_object ),"accumulate_patch_object", "construct_patch" );
@@ -971,23 +960,6 @@ struct patch_object *construct_patch(
     patch[0].acc_year.satChance = 0.0;
     patch[0].acc_year.plantlimitN = 0.0;
     patch[0].acc_year.plantlimitQ = 0.0;
-
-    //  ** ------- RZ UPDATED (May 5, 2024)
-    //  NO3 balance at monthly scale
-    //    1. Surface NO3
-    patch[0].acc_month.surf_NO3 = 0.0;
-    patch[0].acc_month.surf_NO3_in = 0.0;
-    patch[0].acc_month.surf_NO3_out = 0.0;
-    //    2. Soil NO3
-    patch[0].acc_month.soil_NO3 = 0.0;    
-    //    3. Saturated zone NO3
-    patch[0].acc_month.sat_NO3 = 0.0; // RZ: (May 3, 2024) Added for show sat zone NO3
-    patch[0].acc_month.sat_NO3_Qin = 0.0;
-    patch[0].acc_month.sat_NO3_Qout = 0.0;
-    // --------- ** [end] [RZ]
-
-    
     
 	return(patch);
 } /*end construct_patch.c*/
-

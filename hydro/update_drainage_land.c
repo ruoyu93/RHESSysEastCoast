@@ -608,17 +608,25 @@ void  update_drainage_land(
 	/*--------------------------------------------------------------*/
 	if (command_line[0].noredist_flag == 0) {
         d=0;
+        /*
+         * Water-balance fix: apply the groundwater diversion once to the
+         * donor routing volume, then distribute the remaining volume among
+         * all neighbours.  Applying this inside the neighbour loop makes
+         * the result depend on neighbour count and order.
+         */
+        if(command_line[0].gw_flag > 0 &&
+           (patch[0].drainage_type > 0 &&
+            patch[0].drainage_type % actionGWDRAIN == 0)){
+            patch[0].water_dl_routing_gw_m3 += route_to_patch * sat_to_gw_coeff;
+            patch[0].gw_drainage += route_to_patch * sat_to_gw_coeff;
+            route_to_patch *= 1.0 - sat_to_gw_coeff;
+        }
         for (j = 0; j < patch[0].innundation_list[d].num_neighbours; j++) {
             neigh = patch[0].innundation_list[d].neighbours[j].patch;
             /*--------------------------------------------------------------*/
             /* first transfer subsurface water and nitrogen */  // --------- subsurface
             /*--------------------------------------------------------------*/
             /* some "transmissivity_flux2neighbour" is loss to GW_storage  */
-            if(command_line[0].gw_flag > 0 && (patch[0].drainage_type>0 && patch[0].drainage_type % actionGWDRAIN==0)){
-                //how do we know how fill is the GW?
-                patch[0].gw_drainage += route_to_patch * sat_to_gw_coeff;// has multiplied patch[0].area // reset to zero every patch_daily_I()
-                route_to_patch *= 1.0 - sat_to_gw_coeff;
-            }//end of if
             Qin = (patch[0].innundation_list[d].neighbours[j].gamma * route_to_patch) / neigh[0].area;
             if(patch[0].aggregate_ID != neigh[0].aggregate_ID && patch[0].aggregate_ID>0 && patch[0].aggregate_ID % 11 ==0){neigh[0].fromLAND_Q+=Qin; }//reset @subsurface_routing
             if(patch[0].aggregate_ID != neigh[0].aggregate_ID && patch[0].aggregate_ID>0 && patch[0].aggregate_ID % 7 ==0){neigh[0].fromRIPARIAN_Q+=Qin; }
@@ -851,4 +859,3 @@ void  update_drainage_land(
 	return;
 
 } /*end update_drainage_land.c*/
-

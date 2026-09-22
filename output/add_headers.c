@@ -161,7 +161,7 @@ void add_headers(struct world_output_file_object *world_output_files,
 	/*--------------------------------------------------------------*/
     ///<<<---------- here basin daily
 	outfile = world_output_files[0].basin[0].daily;
-	fprintf(outfile,"%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n" , // 106 columns; last is water_balance
+	fprintf(outfile,"%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n" , // added 3 extra
 		"day",
 		"month",
 		"year",
@@ -243,8 +243,7 @@ void add_headers(struct world_output_file_object *world_output_files,
         "PAR",
         "unsat_cap",
         "unsat_fc",
-        "rtz_fc",
-        "water_balance"); // basin daily
+        "rtz_fc"); // basin daily
 
 	/*--------------------------------------------------------------*/
 	/*	Monthly							*/
@@ -452,55 +451,23 @@ void add_headers(struct world_output_file_object *world_output_files,
 	/*--------------------------------------------------------------*/
 	outfile = world_output_files[0].patch[0].daily;
 		check = fprintf(outfile,
-//                        "%s-%s-%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n" ,
-                        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n", // 37 columns
-                        
-                        // we are looking for hydrology behavoirs
-						"year", //1
-						"month", //2
-						"day", //3
-						"patchID", //4
-                        "subsurfaceQnet", //5 Qout-Qin  [+ = source; - = sink]
-                        "surfaceQnet", //6 surface_Qout(sum of locally return_flow and locally rain on surface) - surface_Qin
-                        "detention",//7
-                        "stormdrainYield",//8
-                        "return", //9 overland_flow(customized)
-                        "rain_thr", //10
-                        "thr_recharge", //11 rain_thr - recharge -  [+ = source; - = sink]
-                        "cap_drain", //12 patch[0].cap_rise - patch[0].unsat_drainage  [+ = rise; - = down]
-                        "sat_def_z", //13
-                        "sat_def", //14 (sat_def>0)? (rz_storage+unsat_stor)/sat_def : -1
-                        "rtzStorage", //15 (sat_def>0)? rz_storage/potential_rz_store : -1
-                        "ET",
-                        "treeLAI",//17
-                        "nontreeLAI",//18
-                        "SmartIrrigation",
-                        "rtz_totalvol",//20
-                        "unsat_fc",
-                        "rtz_fc",
-                        "unsat_storage",
-                        "top12cm_storage",
-                        "top12cm_potential_sat",
-                        "rootdepth",
-                        "soildepth",
-                        "top30cm_storage",
-                        "top30cm_potential_sat",
-                        "top60cm_storage", //30
-                        "top60cm_potential_sat",
-						"top100cm_storage", //30
-                        "top100cm_potential_sat",
-						"rtzS", //34
-						"baseflow", //35
-						"returnflow", //36
-						"water_balance" //37
-						);
+			"year month day patch_id patch_area drainage_type"
+			" soil_water_cap rz_storage_capacity sat_deficit water_table_depth"
+			" canopy_litter_rain_storage canopy_snow_storage"
+			" snowpack_liquid_storage snowpack_ice_storage detention_storage"
+			" rz_storage unsat_storage"
+			" rain_input snow_input hourly_rain_input dated_irrigation_input"
+			" grass_irrigation_input septic_release_input gw_to_riparian_input vertical_to_gw"
+			" sub_in sub_out stream_subsurface_out from_stream_subsurface_subset"
+			" surf_in surf_out stream_out stormdrain_out"
+			" sewer_out pipedrain_out et routing_to_gw_subset water_balance\n");
                         // patch daily
 	/*--------------------------------------------------------------*/
 	/*	Monthly							*/
 	/*--------------------------------------------------------------*/
 	outfile = world_output_files[0].patch[0].monthly;
 	check = fprintf(outfile,
-        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
+        "%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
 		"year",
         "month",
 		"patchID",
@@ -515,20 +482,16 @@ void add_headers(struct world_output_file_object *world_output_files,
         "meanLAI",
         "psn",
         "denitrif",
-		"nitrif",//15
-		"surfNO3","surfNO3out","surfNO3in","soilNO3","satNO3",//20
-		"satNO3in",
-        "mineralization",
+        "mineralization",//15
         "uptake",
         "subNO3net",
-        "subNO3vnet",//25
+        "subNO3vnet",
         "subDOCnet",
-        "no3drain2gw",
+        "no3drain2gw",//20
         "satChance",
         "plantlimitN",
         "plantlimitQ",
-		"rtzS",
-		"theta");
+        "meanFrootc");
 	/*--------------------------------------------------------------*/
 	/*	Yearly							*/
 	/*--------------------------------------------------------------*/

@@ -319,9 +319,6 @@ void	output_24hours_basin(			int routing_flag,
                     apipedrainDOC += patch[0].pipedrainYield_DOC * patch[0].area;
                     alawnirrigated += patch[0].grassIrrigation_m * patch[0].area;
                     asepticQ += patch[0].septicReleaseQ_m * patch[0].area;
-					if(patch[0].septicReleaseQ_m > 0){
-						printf("PatchID %d (area %f) septic water depth (m) = %f", patch[0].ID, patch[0].area, patch[0].septicReleaseQ_m);
-					}
 				}
 				else {
 						/* for Topmodel version compute only return flow and later added to streamflow */
@@ -411,7 +408,6 @@ void	output_24hours_basin(			int routing_flag,
 		hgwQout += hillslope[0].gw.Qout * hill_area;
 		basin_area += hill_area;
 	}
-	printf("aarea: %f; aseptic: %f\n", aarea, asepticQ);
 	adC13 /=  aarea;
 	amortality_fract /=  aarea;
 	apcp /= zone_area;
@@ -546,7 +542,7 @@ void	output_24hours_basin(			int routing_flag,
 	var_acctrans /= aarea;
 				
 
-	fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %e %e %e %e %lf %e %e %e %e %lf %e %e %e %e %lf %lf %lf %lf %lf %lf %lf %lf\n", //added 4 extra; last is water_balance
+	fprintf(outfile,"%d %d %d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %e %e %e %e %lf %e %e %e %e %lf %e %e %e %e %lf %lf %lf %lf %lf %lf %lf\n", //added 3 extra
 		date.day,
 		date.month,
 		date.year,
@@ -651,8 +647,7 @@ void	output_24hours_basin(			int routing_flag,
             aPAR,
             unsat_capacity * 1000.0,
             unsat_fc * 1000.0,
-            rtz_fc * 1000.0,
-            basin[0].water_balance * 1000.0 //mm, should be ~0 if conserved (only when routing_flag==1 && !hourly_rain_flag)
+            rtz_fc * 1000.0
 		);
 	return;
 } /*end output_basin*/

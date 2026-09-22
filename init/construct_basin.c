@@ -363,7 +363,6 @@ struct basin_object *construct_basin(
 
 	basin[0].area = 0.0;
 	basin[0].max_slope = 0.0;
-	basin[0].water_balance = 0.0;
 	n_routing_timesteps = 0.0;
 	check_snow_scale = 0.0;
 	/*--------------------------------------------------------------*/

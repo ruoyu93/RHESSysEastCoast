@@ -61,6 +61,7 @@ void	canopy_stratum_hourly(
 	double NO3_stored;
 	double tmp1;
 	double tmp2;
+	double rain_storage_result;
 	rain_throughfall = 0;
 	NO3_stored = 0;
 	NO3_throughfall=0;
@@ -79,10 +80,11 @@ void	canopy_stratum_hourly(
 		"hourly","canopy_stratum_hourly");
 	rain_throughfall = patch[0].hourly[0].rain_throughfall;
 	if ((zone[0].hourly_rain_flag == 1) && ( rain_throughfall > 0.0)) {
-		stratum[0].rain_stored = max(0.0,compute_hourly_rain_stored(
+		rain_storage_result = compute_hourly_rain_stored(
 			command_line[0].verbose_flag,
 			&(rain_throughfall),
-			stratum));
+			stratum);
+		stratum[0].rain_stored = max(0.0, rain_storage_result);
 		patch[0].rain_throughfall_final += rain_throughfall * stratum[0].cover_fraction;
 	}
 	/*--------------------------------------------------------------*/

@@ -506,6 +506,7 @@ void		patch_daily_F(
 	
 	patch[0].exfiltration_unsat_zone = 0.0;
 	patch[0].exfiltration_sat_zone = 0.0;
+	patch[0].water_dl_vertical_gw = 0.0;
 	
 	patch[0].T_canopy = zone[0].metv.tavg;
 	patch[0].T_canopy_final = 0.0;
@@ -535,6 +536,7 @@ void		patch_daily_F(
             }else irrigation = 0.0;
         }else irrigation = 0.0;
     }else irrigation = 0.0;
+    patch[0].water_dl_dated_irrigation = irrigation;
     //patch[0].landuse_defaults[0][0].irrigation; format change;
     //patch[0].landuse_defaults[0][0].irrigation is used below
     
@@ -897,6 +899,12 @@ void		patch_daily_F(
 	/*	process any daily rainfall				*/
 	/*--------------------------------------------------------------*/
     patch[0].rain_throughfall = zone[0].rain;
+    patch[0].water_diag_canopy_input = 0.0;
+    patch[0].water_diag_canopy_output = 0.0;
+    patch[0].water_diag_canopy_old_storage = 0.0;
+    patch[0].water_diag_canopy_new_storage = 0.0;
+    patch[0].water_diag_canopy_evaporation = 0.0;
+    patch[0].water_diag_canopy_residual = 0.0;
     // problem: irrigation should be adding to rain_throughfall
     // irrigation should be added to patch[0].detention_store @ LINE 1583
 
@@ -912,6 +920,7 @@ void		patch_daily_F(
 		patch[0].snow_throughfall = zone[0].snow * patch[0].snow_redist_scale;
     else
         patch[0].snow_throughfall = zone[0].snow;
+	patch[0].water_dl_snow_input = patch[0].snow_throughfall;
 
 	patch[0].wind = zone[0].wind;
 	patch[0].windsnow = zone[0].wind;
@@ -925,7 +934,7 @@ void		patch_daily_F(
         double totalTransferWater = 0.0;
         double tmp_fraction = 0.0;
         patch[0].septicReleaseQ_m = patch[0].landuse_defaults[0][0].septic_water_load/patch[0].area; // release to patch
-        // printf("LANDUSE SEPTIC 1: %f", patch[0].septicReleaseQ_m);
+        
         for (i =0; i < patch[0].innundation_list[d].num_drainIN_septic; i++){
             // from surface to surface
             sourceTransferWater = min(
@@ -933,10 +942,10 @@ void		patch_daily_F(
                               patch[0].innundation_list[d].drainIN_septic[i].DrainFrac *
                                 patch[0].landuse_defaults[0][0].septic_water_load/patch[0].area);// water depth release to patch
             
-            // printf("sourceTranserWater 2: %f", sourceTransferWater);
+            
             patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_surf = max(0.0, min(sourceTransferWater * patch[0].innundation_list[d].drainIN_septic[i].propDrainFrmSurf,
                                           patch[0].innundation_list[d].drainIN_septic[i].patch[0].detention_store));
-            // printf("transfer_flux_surf 3: %f", patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_surf);
+            
             patch[0].detention_store += patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_surf;
             
             tmp_fraction = min(1.0,(patch[0].innundation_list[d].drainIN_septic[i].patch[0].detention_store>0? patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_surf/patch[0].innundation_list[d].drainIN_septic[i].patch[0].detention_store : 0.0));
@@ -953,7 +962,7 @@ void		patch_daily_F(
             
             // drawing from deep GW
             patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_sub = max(0.0,min(sourceTransferWater * (1.0 - patch[0].innundation_list[d].drainIN_septic[i].propDrainFrmSurf), hillslope[0].gw.storage*hillslope[0].area/patch[0].area)); // actual available water from known source
-            // printf("transfer_flux_sub 4: %f", patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_sub);
+            
             // perform water and solute transfer
             patch[0].detention_store += patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_sub;
             tmp_fraction = min(1.0,(hillslope[0].gw.storage>0? patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_sub*patch[0].area/hillslope[0].area/hillslope[0].gw.storage : 0.0));
@@ -970,11 +979,9 @@ void		patch_daily_F(
             hillslope[0].gw.DON *= tmp_fraction;
             
             totalTransferWater += patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_sub + patch[0].innundation_list[d].drainIN_septic[i].transfer_flux_surf;
-			
         }// for loop of sources
         if(patch[0].innundation_list[d].num_drainIN_septic>0){
             patch[0].septicReleaseQ_m = totalTransferWater;
-			printf("totalTransferWater at patch %d: %f\n", patch[0].ID, totalTransferWater);
             // one source per septic output
             patch[0].surface_NO3 += patch[0].landuse_defaults[0][0].septic_NO3_load/patch[0].area * patch[0].innundation_list[d].num_drainIN_septic;
         }
@@ -1761,6 +1768,31 @@ void		patch_daily_F(
 		/*--------------------------------------------------------------*/
 		net_inflow = 0.0;
 		duration = 0.0;
+
+		/*
+		 * Water-balance fix: routing groundwater from the preceding
+		 * routing cycle is a pending volume.  Credit it to the hillslope
+		 * groundwater store whether or not this patch has detention water
+		 * today.  The original placement inside the detention condition
+		 * silently discarded the pending volume on dry days.
+		 */
+		if (command_line[0].gw_flag > 0 &&
+			((patch[0].drainage_type > 0 &&
+			  patch[0].drainage_type % actionGWDRAIN == 0) ||
+			 patch[0].drainage_type == ROAD)) {
+			hillslope[0].gw.storage +=
+				patch[0].gw_drainage / hillslope[0].area;
+			hillslope[0].gw.DON +=
+				patch[0].gw_drainage_DON / hillslope[0].area;
+			hillslope[0].gw.DOC +=
+				patch[0].gw_drainage_DOC / hillslope[0].area;
+			hillslope[0].gw.NH4 +=
+				patch[0].gw_drainage_NH4 / hillslope[0].area;
+			hillslope[0].gw.NO3 +=
+				patch[0].gw_drainage_NO3 / hillslope[0].area;
+			patch[0].gw_drainage /= patch[0].area;
+		}
+
 		if (patch[0].detention_store > ZERO) {
             
 			/*------------------------------------------------------------------------*/
@@ -1768,16 +1800,7 @@ void		patch_daily_F(
 			/*	move both nitrogen and water				    	*/
 			/*------------------------------------------------------------------------*/
 			if (command_line[0].gw_flag > 0 && ((patch[0].drainage_type>0 && patch[0].drainage_type % actionGWDRAIN==0) || patch[0].drainage_type==ROAD)) {
-                
-                // these patch[0].gw_drainage.XX are calculated hourly in subsurface_routing -> land_drainage ()
-                hillslope[0].gw.storage += patch[0].gw_drainage / hillslope[0].area;
-                hillslope[0].gw.DON += patch[0].gw_drainage_DON / hillslope[0].area;
-                hillslope[0].gw.DOC += patch[0].gw_drainage_DOC / hillslope[0].area;
-                hillslope[0].gw.NH4 += patch[0].gw_drainage_NH4 / hillslope[0].area;
-                hillslope[0].gw.NO3 += patch[0].gw_drainage_NO3 / hillslope[0].area;
-                patch[0].gw_drainage /= patch[0].area; // for water balance below;
-                // patch[0].gw_drainage and patch[0].gw_drainage_DON are from yesterday, right
-                
+
                 // diffusion
 //                if(patch[0].soil_defaults[0][0].sat_to_gw_coeff>0 && patch[0].available_soil_water>0 && hillslope[0].gw.storage>0){
 //                    // hillslope[0].gw.NO3*hillslope[0].gw.soluteConc0coef is the [N0]
@@ -2725,8 +2748,8 @@ void		patch_daily_F(
     //totalfc *= (1.0-patch[0].basementFrac); // <---- second thought on this, Oct 8, 2019; basement is 3m at most
     
     if (patch[0].sat_deficit < ZERO) {
-        patch[0].aboveWT_SatPct = 1.0;
-        patch[0].rootzone.SatPct = 1.0;
+        //patch[0].aboveWT_SatPct = 1.0;
+        //patch[0].rootzone.SatPct = 1.0;
         patch[0].rootzone.field_capacity = 0.0;
         patch[0].field_capacity = 0.0;
     } else {
@@ -2762,13 +2785,9 @@ void		patch_daily_F(
 
     
     if(patch[0].rootzone.potential_sat>ZERO){
-        if (patch[0].sat_deficit > patch[0].rootzone.potential_sat) {
-			theta = min(patch[0].rz_storage/patch[0].rootzone.potential_sat, 1.0);}//(1.0-patch[0].basementFrac)
-        else {
-			theta = min((patch[0].rz_storage + patch[0].rootzone.potential_sat - patch[0].sat_deficit)/patch[0].rootzone.potential_sat,1.0);}//(1.0-patch[0].basementFrac)
-    }else{ theta = 0.0;}
-	patch[0].rootzone.SatPct = theta;
-	if(patch[0].sat_deficit<=0){patch[0].rootzone.SatPct = 1;}
+        if (patch[0].sat_deficit > patch[0].rootzone.potential_sat) theta = min(patch[0].rz_storage/patch[0].rootzone.potential_sat, 1.0);//(1.0-patch[0].basementFrac)
+        else theta = min((patch[0].rz_storage + patch[0].rootzone.potential_sat - patch[0].sat_deficit)/patch[0].rootzone.potential_sat,1.0);//(1.0-patch[0].basementFrac)
+    }else{ theta = 0.0; }
     patch[0].theta_std = patch[0].soil_defaults[0][0].active_zone_sat_0z*theta;
     patch[0].theta_std *= patch[0].soil_defaults[0][0].theta_mean_std_p2 * patch[0].theta_std;
     patch[0].theta_std += patch[0].soil_defaults[0][0].theta_mean_std_p1 * (patch[0].soil_defaults[0][0].active_zone_sat_0z*theta);
@@ -2984,51 +3003,33 @@ void		patch_daily_F(
 		+ patch[0].cdf.soil4c_hr);
 
 	if (command_line[0].snow_scale_flag == 1)
-	  patch[0].water_balance = zone[0].rain + zone[0].snow*patch[0].snow_redist_scale
+	  patch[0].water_balance = zone[0].rain + zone[0].snow*patch[0].snow_redist_scale 
 		+ patch[0].preday_detention_store +
-		+ irrigation
+		+ irrigation 
 		+ patch[0].landuse_defaults[0][0].septic_water_load/patch[0].area
 		+ zone[0].rain_hourly_total - ( patch[0].gw_drainage
 		+ patch[0].transpiration_sat_zone + patch[0].transpiration_unsat_zone
-		+ patch[0].evaporation + patch[0].evaporation_surf
+		+ patch[0].evaporation + patch[0].evaporation_surf 
 		+ patch[0].exfiltration_unsat_zone + patch[0].exfiltration_sat_zone)
-		- (patch[0].rz_storage - patch[0].preday_rz_storage)
+		- (patch[0].rz_storage - patch[0].preday_rz_storage)		
 		- (patch[0].unsat_storage - patch[0].preday_unsat_storage)
-		- (patch[0].preday_sat_deficit - patch[0].sat_deficit)
+		- (patch[0].water_dl_day_start_sat_deficit - patch[0].sat_deficit)
 		- patch[0].delta_snowpack - patch[0].delta_rain_stored
 		- patch[0].delta_snow_stored - patch[0].detention_store;
-	else
-	  patch[0].water_balance = zone[0].rain + zone[0].snow
+	else	
+	  patch[0].water_balance = zone[0].rain + zone[0].snow 
 		+ patch[0].preday_detention_store +
-		+ irrigation
+		+ irrigation 
 		+ patch[0].landuse_defaults[0][0].septic_water_load/patch[0].area
 		+ zone[0].rain_hourly_total - ( patch[0].gw_drainage
 		+ patch[0].transpiration_sat_zone + patch[0].transpiration_unsat_zone
-		+ patch[0].evaporation + patch[0].evaporation_surf
+		+ patch[0].evaporation + patch[0].evaporation_surf 
 		+ patch[0].exfiltration_unsat_zone + patch[0].exfiltration_sat_zone)
-		- (patch[0].rz_storage - patch[0].preday_rz_storage)
+		- (patch[0].rz_storage - patch[0].preday_rz_storage)			
 		- (patch[0].unsat_storage - patch[0].preday_unsat_storage)
-		- (patch[0].preday_sat_deficit - patch[0].sat_deficit)
+		- (patch[0].water_dl_day_start_sat_deficit - patch[0].sat_deficit)
 		- patch[0].delta_snowpack - patch[0].delta_rain_stored
 		- patch[0].delta_snow_stored - patch[0].detention_store;
-
-	/* same input/output terms as water_balance above, but kept unnetted (no
-	   preday_* or storage terms) so a basin-scale water balance can sum true
-	   external inputs and true ET/drainage outputs separately from Δstorage */
-	if (command_line[0].snow_scale_flag == 1)
-		patch[0].wbal_input = zone[0].rain + zone[0].snow*patch[0].snow_redist_scale
-			+ irrigation
-			+ patch[0].landuse_defaults[0][0].septic_water_load/patch[0].area
-			+ zone[0].rain_hourly_total;
-	else
-		patch[0].wbal_input = zone[0].rain + zone[0].snow
-			+ irrigation
-			+ patch[0].landuse_defaults[0][0].septic_water_load/patch[0].area
-			+ zone[0].rain_hourly_total;
-	patch[0].wbal_output = patch[0].gw_drainage
-			+ patch[0].transpiration_sat_zone + patch[0].transpiration_unsat_zone
-			+ patch[0].evaporation + patch[0].evaporation_surf
-			+ patch[0].exfiltration_unsat_zone + patch[0].exfiltration_sat_zone;
 
 	/*
 	if ((patch[0].water_balance > 0.00000001)||
@@ -3048,7 +3049,7 @@ void		patch_daily_F(
 		, patch[0].exfiltration_unsat_zone , patch[0].exfiltration_sat_zone
 		, patch[0].rz_storage , patch[0].preday_rz_storage
 		, patch[0].unsat_storage , patch[0].preday_unsat_storage
-		, patch[0].preday_sat_deficit , patch[0].sat_deficit
+		, patch[0].water_dl_day_start_sat_deficit , patch[0].sat_deficit
 		, patch[0].delta_snowpack , patch[0].delta_rain_stored
 		, patch[0].preday_rain_stored, patch[0].rain_stored
 		, patch[0].delta_snow_stored , patch[0].detention_store);	
@@ -3096,7 +3097,7 @@ void		patch_daily_F(
 			patch[0].evaporation + patch[0].exfiltration_sat_zone
 			+ patch[0].exfiltration_unsat_zone,
 			(patch[0].unsat_storage - patch[0].preday_unsat_storage),
-			(patch[0].preday_sat_deficit - patch[0].sat_deficit),
+			(patch[0].water_dl_day_start_sat_deficit - patch[0].sat_deficit),
 			patch[0].delta_snowpack,
 			patch[0].delta_rain_stored + patch[0].delta_snow_stored);
 	}

@@ -68,6 +68,7 @@ int update_gw_drainage(
     drainage = sat_to_gw_coeff * patch[0].detention_store * patch[0].Ksat_vertical; // correcting with % imprevious surface
 	patch[0].detention_store -= drainage;
 	patch[0].gw_drainage += drainage; // use for water balance check in the patch_daily_F()
+	patch[0].water_dl_vertical_gw += drainage;
 	hillslope[0].gw.storage += (drainage * patch[0].area / hillslope[0].area);
 
 	/*------------------------------------------------------*/

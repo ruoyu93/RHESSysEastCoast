@@ -75,6 +75,7 @@ void		basin_daily_I(
 	double	coshss;
 	double	hss;
 	int	hillslope;
+	basin[0].water_diag_hourly_stream_m3 = 0.0;
 	/*--------------------------------------------------------------*/
 	/*	Daylength (seconds)											*/
 	/*	Now using GBGC computation taken from Jones,		*/

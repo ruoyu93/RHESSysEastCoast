@@ -217,6 +217,7 @@ void		hillslope_hourly(
 //                        patch[0].soil_cs.DOC += gw_Qout_ratio * hillslope[0].gw.hourly_DOCout;
                     // let the infiltration settle this
                     patch[0].detention_store += hourly_gw_Qout;
+                    patch[0].water_dl_gw_to_riparian += hourly_gw_Qout;
                     patch[0].surface_NO3 += gw_Qout_ratio * hillslope[0].gw.hourly_NO3out;
                     patch[0].surface_NH4 += gw_Qout_ratio * hillslope[0].gw.hourly_NH4out;
                     patch[0].surface_DON += gw_Qout_ratio * hillslope[0].gw.hourly_DONout;

@@ -72,6 +72,10 @@ double	compute_rain_stored(
 		verbose_flag,
 		*rain,
 		stratum );
+	stratum[0].water_diag_potential_interception = potential_interception;
+	stratum[0].water_diag_storage_capacity =
+		stratum[0].epv.all_pai
+		* stratum[0].defaults[0][0].specific_rain_capacity;
     
 	if( verbose_flag >2)
 		printf("%8.6f %8.6f ",*rain, stratum[0].rain_stored);
@@ -90,14 +94,15 @@ double	compute_rain_stored(
 	/*	m = m - m 						*/
 	/*--------------------------------------------------------------*/
 	throughfall  = *rain - potential_interception;
+	stratum[0].water_diag_throughfall_initial = throughfall;
 	/*--------------------------------------------------------------*/
 	/*	Compute amount of storage evaporated.			*/
 	/*	m = m							*/
 	/*--------------------------------------------------------------*/
-    if(potential_evaporation >= stratum[0].rain_stored){
-        stratum[0].rain_stored = 0.0;
-        storage_evaporated = stratum[0].rain_stored;
-    }else{
+	    if(potential_evaporation >= stratum[0].rain_stored){
+	        storage_evaporated = stratum[0].rain_stored;
+	        stratum[0].rain_stored = 0.0;
+	    }else{
         stratum[0].rain_stored  -= potential_evaporation;
         storage_evaporated = potential_evaporation;
         // potential_evaporation ?
@@ -108,6 +113,7 @@ double	compute_rain_stored(
     }else{
         potential_interception_evaporated = 0.0;
     }//if
+    potential_interception -= potential_interception_evaporated;
     
 //	storage_evaporated =	min(potential_evaporation,stratum[0].rain_stored);
 //	/*--------------------------------------------------------------*/
@@ -172,8 +178,9 @@ double	compute_rain_stored(
 	/*	Update rain throughfall.									*/
 	/*	m += m							*/
 	/*--------------------------------------------------------------*/
-	throughfall += max(potential_interception
+	stratum[0].water_diag_overflow_return = max(potential_interception
 		- (rain_storage - stratum[0].rain_stored),0);
+	throughfall += stratum[0].water_diag_overflow_return;
 	if( verbose_flag > 2)
 		printf("%8.6f ",throughfall);
 	

@@ -190,6 +190,22 @@ void	basin_hourly(
 			basin,
 			basin[0].defaults[0][0].n_routing_timesteps,
 			current_date);
+		for (hillslope = 0; hillslope < basin[0].num_hillslopes;
+			hillslope++) {
+			int zone_index;
+			hillslope_p = basin[0].hillslopes[hillslope];
+			for (zone_index = 0; zone_index < hillslope_p[0].num_zones;
+				zone_index++) {
+				int patch_index;
+				zone_p = hillslope_p[0].zones[zone_index];
+				for (patch_index = 0; patch_index < zone_p[0].num_patches;
+					patch_index++) {
+					patch = zone_p[0].patches[patch_index];
+					basin[0].water_diag_hourly_stream_m3 +=
+						patch[0].hourly_stream_flow * patch[0].area;
+				}
+			}
+		}
 	}
 
 

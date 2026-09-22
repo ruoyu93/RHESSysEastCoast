@@ -41,8 +41,157 @@
 /*																*/
 /*--------------------------------------------------------------*/
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include "rhessys.h"
+
+static void write_basin_water_ledger(
+	struct basin_object *basin,
+	struct command_line_object *command_line,
+	struct date current_date)
+{
+	static FILE *ledger = NULL;
+	static int disabled = 0;
+	const char *filename;
+	int h, z, p;
+	struct hillslope_object *hillslope;
+	struct zone_object *zone;
+	struct patch_object *patch;
+	double area = 0.0;
+	double rain = 0.0, snow = 0.0, hourly_rain = 0.0;
+	double grass_irrigation = 0.0, septic_release = 0.0;
+	double et = 0.0, stream = 0.0, storm = 0.0, sewer = 0.0, pipe = 0.0;
+	double gw_qout = 0.0, gw_storage = 0.0, pending_gw = 0.0;
+	double canopy_litter = 0.0, canopy_snow = 0.0;
+	double canopy_rain = 0.0, litter_rain = 0.0, rain_throughfall = 0.0;
+	double canopy_call_input = 0.0, canopy_call_output = 0.0;
+	double canopy_call_old_storage = 0.0, canopy_call_new_storage = 0.0;
+	double canopy_call_evaporation = 0.0, canopy_call_residual = 0.0;
+	double snow_liquid = 0.0, snow_ice = 0.0, detention = 0.0;
+	double rz = 0.0, unsat = 0.0, saturated = 0.0, total_storage;
+	int hourly_routing = 0;
+
+	if (disabled)
+		return;
+	if (ledger == NULL) {
+		filename = getenv("RHESSYS_BASIN_WATER_DIAG");
+		if (filename == NULL || filename[0] == '\0') {
+			disabled = 1;
+			return;
+		}
+		ledger = fopen(filename, "w");
+		if (ledger == NULL) {
+			fprintf(stderr, "Unable to open basin water ledger %s.\n", filename);
+			exit(EXIT_FAILURE);
+		}
+		fprintf(ledger,
+			"year,month,day,basin_id,area_m2,hourly_routing_flag,"
+			"rain_m3,snow_m3,hourly_rain_m3,grass_irrigation_m3,"
+			"septic_release_m3,et_m3,stream_export_m3,gw_export_m3,"
+			"storm_export_m3,sewer_export_m3,pipe_export_m3,"
+			"canopy_litter_storage_m3,canopy_rain_storage_m3,"
+			"litter_rain_storage_m3,rain_throughfall_m3,"
+			"canopy_call_input_m3,canopy_call_output_m3,"
+			"canopy_call_old_storage_m3,canopy_call_new_storage_m3,"
+			"canopy_call_evaporation_m3,canopy_call_residual_m3,"
+			"canopy_snow_storage_m3,"
+			"snow_liquid_storage_m3,snow_ice_storage_m3,"
+			"detention_storage_m3,rz_storage_m3,unsat_storage_m3,"
+			"saturated_storage_m3,hillslope_gw_storage_m3,"
+			"pending_routing_gw_storage_m3,total_storage_m3\n");
+	}
+
+	for (h = 0; h < basin[0].num_hillslopes; h++) {
+		hillslope = basin[0].hillslopes[h];
+		gw_storage += hillslope[0].gw.storage * hillslope[0].area;
+		gw_qout += hillslope[0].gw.Qout * hillslope[0].area;
+		for (z = 0; z < hillslope[0].num_zones; z++) {
+			zone = hillslope[0].zones[z];
+			for (p = 0; p < zone[0].num_patches; p++) {
+				patch = zone[0].patches[p];
+				if (zone[0].hourly_rain_flag == 1)
+					hourly_routing = 1;
+				area += patch[0].area;
+				rain += zone[0].rain * patch[0].area;
+				snow += zone[0].snow
+					* (command_line[0].snow_scale_flag == 1
+						? patch[0].snow_redist_scale : 1.0)
+					* patch[0].area;
+				hourly_rain += zone[0].rain_hourly_total * patch[0].area;
+				grass_irrigation += patch[0].grassIrrigation_m * patch[0].area;
+				septic_release += patch[0].septicReleaseQ_m * patch[0].area;
+				et += (patch[0].evaporation + patch[0].evaporation_surf
+					+ patch[0].transpiration_sat_zone
+					+ patch[0].transpiration_unsat_zone
+					+ patch[0].exfiltration_sat_zone
+					+ patch[0].exfiltration_unsat_zone) * patch[0].area;
+				stream += patch[0].streamflow * patch[0].area;
+				storm += patch[0].stormdrained * patch[0].area;
+				sewer += patch[0].sewerdrained * patch[0].area;
+				pipe += patch[0].pipedrainYield * patch[0].area;
+				canopy_litter += patch[0].rain_stored * patch[0].area;
+				litter_rain += patch[0].litter.rain_stored * patch[0].area;
+				canopy_rain +=
+					(patch[0].rain_stored - patch[0].litter.rain_stored)
+					* patch[0].area;
+				rain_throughfall +=
+					patch[0].rain_throughfall * patch[0].area;
+				canopy_call_input +=
+					patch[0].water_diag_canopy_input * patch[0].area;
+				canopy_call_output +=
+					patch[0].water_diag_canopy_output * patch[0].area;
+				canopy_call_old_storage +=
+					patch[0].water_diag_canopy_old_storage * patch[0].area;
+				canopy_call_new_storage +=
+					patch[0].water_diag_canopy_new_storage * patch[0].area;
+				canopy_call_evaporation +=
+					patch[0].water_diag_canopy_evaporation * patch[0].area;
+				canopy_call_residual +=
+					patch[0].water_diag_canopy_residual * patch[0].area;
+				canopy_snow += patch[0].snow_stored * patch[0].area;
+				snow_liquid += patch[0].snowpack.water_depth * patch[0].area;
+				snow_ice += patch[0].snowpack.water_equivalent_depth
+					* patch[0].area;
+				detention += patch[0].detention_store * patch[0].area;
+				rz += patch[0].rz_storage * patch[0].area;
+				unsat += patch[0].unsat_storage * patch[0].area;
+				saturated +=
+					(patch[0].soil_defaults[0][0].soil_water_cap
+						- patch[0].sat_deficit) * patch[0].area;
+				/*
+				 * After routing this field is a pending volume that is
+				 * credited to hillslope groundwater on the following day.
+				 */
+				pending_gw += patch[0].gw_drainage;
+			}
+		}
+	}
+
+	total_storage = canopy_litter + canopy_snow + snow_liquid + snow_ice
+		+ detention + rz + unsat + saturated + gw_storage + pending_gw;
+	if (hourly_routing)
+		stream = basin[0].water_diag_hourly_stream_m3;
+	fprintf(ledger,
+		"%ld,%ld,%ld,%d,%.17g,%d,"
+		"%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,"
+		"%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,"
+		"%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,"
+		"%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,"
+		"%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,"
+		"%.17g\n",
+		current_date.year, current_date.month, current_date.day, basin[0].ID,
+		area, hourly_routing, rain, snow, hourly_rain, grass_irrigation,
+		septic_release,
+		et, stream, gw_qout, storm, sewer, pipe,
+		canopy_litter, canopy_rain, litter_rain, rain_throughfall,
+		canopy_call_input, canopy_call_output,
+		canopy_call_old_storage, canopy_call_new_storage,
+		canopy_call_evaporation, canopy_call_residual,
+		canopy_snow, snow_liquid, snow_ice, detention,
+		rz, unsat, saturated, gw_storage, pending_gw, total_storage);
+	fflush(ledger);
+}
 
 void	basin_daily_F(
 					  long	day,
@@ -84,20 +233,14 @@ void	basin_daily_F(
 	void	update_hillslope_accumulator(
 		struct command_line_object *command_line,
 		struct basin_object *basin);
-
-	double	compute_basin_storage(struct basin_object *);
-	double	compute_basin_gw_storage(struct basin_object *);
-	void	compute_basin_wbal_fluxes(struct basin_object *, double *, double *);
 	/*--------------------------------------------------------------*/
 	/*  Local variable definition.                                  */
 	/*--------------------------------------------------------------*/
 	int	h, z, p,inx;
 	double	scale;
-	double	wbal_start_storage, wbal_start_gw;
-	double	wbal_end_storage, wbal_end_gw, wbal_input, wbal_output;
 	struct	hillslope_object *hillslope;
 	struct	zone_object *zone;
-	struct	patch_object *patch;
+	struct	patch_object *patch; 
 	struct	dated_sequence	clim_event;
 
 	/*--------------------------------------------------------------*/
@@ -107,24 +250,6 @@ void	basin_daily_F(
 	basin[0].snowpack.surface_age = 0.0;
 	basin[0].snowpack.energy_deficit = 0.0;
 	basin[0].snowpack.T = 0.0;
-
-	/*--------------------------------------------------------------*/
-	/*	basin[0].water_balance (full-day check) only makes sense for	*/
-	/*	the explicit daily-routing configuration: it relies on a	*/
-	/*	single start-of-day/end-of-day snapshot bounding "one day",	*/
-	/*	which isn't true under hourly rain (physics already ran	*/
-	/*	across today's hours via world_hourly()/basin_hourly() before	*/
-	/*	this function is even called), and basin_outflow is never	*/
-	/*	populated at all under routing_flag==0 (TOPMODEL).		*/
-	/*--------------------------------------------------------------*/
-	hillslope = basin[0].hillslopes[0];
-	zone = hillslope[0].zones[0];
-
-	if (command_line[0].routing_flag == 1 && zone[0].hourly_rain_flag == 0) {
-		wbal_start_storage = compute_basin_storage(basin);
-		wbal_start_gw = compute_basin_gw_storage(basin);
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	Simulate the hillslopes in this basin for the whole day		*/
 	/*--------------------------------------------------------------*/
@@ -134,11 +259,13 @@ void	basin_daily_F(
 			world,
 			basin,
 			basin[0].hillslopes[h],
-			command_line,
+			command_line, 
 			event,
 			current_date );
 	}
 
+        hillslope = basin[0].hillslopes[0];
+	zone = hillslope[0].zones[0];
 	basin[0].snowpack.surface_age /=  basin[0].area_withsnow;
 	basin[0].snowpack.T /=  basin[0].area_withsnow;
 	basin[0].snowpack.energy_deficit /=  basin[0].area_withsnow;
@@ -159,30 +286,14 @@ void	basin_daily_F(
 	/*  For stream routing option - route water between patches within     */
 	/*      the basin                                               */
 	/*--------------------------------------------------------------*/
-    	if ( command_line[0].stream_routing_flag == 1) {
+	if ( command_line[0].stream_routing_flag == 1) {
 		 basin[0].stream_list.streamflow=compute_stream_routing(command_line,
 			basin[0].stream_list.stream_network,
 			basin[0].stream_list.num_reaches,
                         current_date);
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	full-day, whole-basin water balance check: true day-start	*/
-	/*	storage vs. true day-end storage, reconciled against the	*/
-	/*	day's rain/irrigation/septic inputs, ET/gw_drainage outputs,	*/
-	/*	the hillslope groundwater store, and basin outflow.		*/
-	/*--------------------------------------------------------------*/
-	if (command_line[0].routing_flag == 1 && zone[0].hourly_rain_flag == 0) {
-		wbal_end_storage = compute_basin_storage(basin);
-		wbal_end_gw = compute_basin_gw_storage(basin);
-		compute_basin_wbal_fluxes(basin, &wbal_input, &wbal_output);
-		basin[0].water_balance = wbal_input - wbal_output
-				- (wbal_end_storage - wbal_start_storage)
-				- (wbal_end_gw - wbal_start_gw)
-				- basin[0].basin_outflow;
-	} else {
-		basin[0].water_balance = 0.0; /* not computed in this routing configuration */
-	}
+	write_basin_water_ledger(basin, command_line, current_date);
 
 	/*--------------------------------------------------------------*/
 	/* update basin patch accumulator				*/
